@@ -23,7 +23,7 @@ export default function StorefrontHeader() {
   const isGuest = !user;
   const userRole = user?.role || user?.vai_tro || "customer";
   const userName = user?.name || user?.ho_ten || (isGuest ? "Khách vãng lai" : "Khách hàng");
-  const userEmail = user?.email || (isGuest ? "" : "customer@xanhfarm.vn");
+  const userEmail = user?.email || "";
   const isStaffOrAdmin = ["farm_staff", "sales", "admin"].includes(userRole);
 
   // Sync scroll detection

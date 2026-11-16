@@ -144,12 +144,25 @@
   }
 }
 
+@keyframes slideLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.18s ease-out forwards;
 }
 
 .animate-scale {
   animation: scaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-left {
+  animation: slideLeft 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
