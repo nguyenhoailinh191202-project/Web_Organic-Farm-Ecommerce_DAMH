@@ -24,6 +24,11 @@ class NguoiDung extends Authenticatable
         return $this->Mat_khau_ma_hoa;
     }
 
+    public function getAuthPasswordName(): string
+    {
+        return 'Mat_khau_ma_hoa';
+    }
+
     public function vaiTro()
     {
         return $this->belongsTo(VaiTro::class, 'Ma_vai_tro', 'Ma_vai_tro');

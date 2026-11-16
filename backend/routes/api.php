@@ -57,4 +57,5 @@ if (app()->environment(['local', 'testing'])) {
     });
 }
 
-// Các API nghiệp vụ CV04 trở đi để trống, chờ người phụ trách từng CV triển khai.
+// Các API xác thực hệ thống (CV04.3 - CV04.5)
+require __DIR__.'/auth.php';

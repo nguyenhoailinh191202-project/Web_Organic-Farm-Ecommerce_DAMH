@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +18,68 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request): Response|JsonResponse
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        /** @var \App\Models\NguoiDung $user */
+        $user = Auth::user();
+
+        // Kiểm tra trạng thái tài khoản bị khóa
+        if ($user && $user->Trang_thai === 'Khoa') {
+            Auth::guard('web')->logout();
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản trị viên.',
+                'error_code' => 'ACCOUNT_LOCKED',
+                'errors' => [
+                    'email' => ['Tài khoản này đã bị khóa do vi phạm chính sách hoặc bởi Quản trị viên.'],
+                ],
+            ], 403);
+        }
+
+        $rawRole = $user?->vaiTro?->Ten_vai_tro ?? 'Customer';
+        $normalizedRole = match (strtolower(str_replace([' ', '_'], '', $rawRole))) {
+            'admin' => 'admin',
+            'sales' => 'sales',
+            'farmstaff' => 'farm_staff',
+            default => 'customer',
+        };
+
+        $token = $user?->createToken('auth_token')->plainTextToken;
+
+        $userData = [
+            'id' => $user->Ma_nguoi_dung,
+            'name' => $user->Ho_ten,
+            'email' => $user->Email,
+            'phone' => $user->So_dien_thoai,
+            'role' => $normalizedRole,
+            'roles' => [$normalizedRole],
+            'status' => $user->Trang_thai === 'Hoat_dong' ? 'active' : 'locked',
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đăng nhập thành công.',
+                'error_code' => null,
+                'data' => [
+                    'user' => $userData,
+                    'token' => $token,
+                ],
+                'user' => $userData,
+                'token' => $token,
+            ], 200);
+        }
 
         return response()->noContent();
     }
@@ -29,13 +87,27 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): Response|JsonResponse
     {
+        /** @var \App\Models\NguoiDung|null $user */
+        $user = Auth::user();
+        if ($user && method_exists($user, 'tokens')) {
+            $user->tokens()->delete();
+        }
+
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
-        $request->session()->regenerateToken();
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đăng xuất thành công.',
+            ], 200);
+        }
 
         return response()->noContent();
     }

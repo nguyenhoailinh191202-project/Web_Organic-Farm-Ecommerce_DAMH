@@ -60,4 +60,64 @@ class ApiIntegrationTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.original_name', 'quality.jpg');
     }
+
+    public function test_login_authentication_and_role_routing(): void
+    {
+        // 1. Đăng nhập Admin
+        $this->postJson('/api/login', [
+            'email' => 'admin@nongsansach.vn',
+            'password' => 'password',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'admin')
+            ->assertJsonPath('user.name', 'Nguyễn Minh Quản Trị')
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email', 'role', 'roles', 'status']]);
+
+        $this->postJson('/api/logout')->assertOk();
+
+        // 2. Đăng nhập Sales
+        $this->postJson('/api/login', [
+            'email' => 'sales.ha@nongsansach.vn',
+            'password' => 'password',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'sales')
+            ->assertJsonPath('user.name', 'Trần Thị Thu Hà (Sales)');
+
+        $this->postJson('/api/logout')->assertOk();
+
+        // 3. Đăng nhập Farm Staff (Kỹ sư canh tác)
+        $this->postJson('/api/login', [
+            'email' => 'farm.kythuat@nongsansach.vn',
+            'password' => 'password',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'farm_staff')
+            ->assertJsonPath('user.name', 'Phạm Hoàng Kỹ Thuật (Farm Staff)');
+
+        $this->postJson('/api/logout')->assertOk();
+
+        // 4. Đăng nhập Customer (Khách hàng)
+        $this->postJson('/api/login', [
+            'email' => 'ngocanh.khach@gmail.com',
+            'password' => 'password',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'customer')
+            ->assertJsonPath('user.name', 'Đặng Ngọc Anh');
+
+        $this->postJson('/api/logout')->assertOk();
+
+        // 5. Đăng nhập sai mật khẩu -> Lỗi 422
+        $this->postJson('/api/login', [
+            'email' => 'admin@nongsansach.vn',
+            'password' => 'wrong_password',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['email']]);
+    }
 }
