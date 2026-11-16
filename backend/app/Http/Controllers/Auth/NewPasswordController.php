@@ -1,57 +1,107 @@
 <?php
 
 /*
- * Xác thực token khôi phục và cập nhật mật khẩu mới.
+ * Xác thực token/OTP khôi phục và cập nhật mật khẩu mới (CV04.5).
  */
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Models\NguoiDung;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class NewPasswordController extends Controller
 {
     /**
-     * Handle an incoming new password request.
-     *
-     * @throws ValidationException
+     * Xác thực mã OTP/token và cập nhật mật khẩu mới cho tài khoản.
      */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => ['required', 'string', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.required' => 'Vui lòng nhập địa chỉ email.',
+            'email.email' => 'Địa chỉ email không đúng định dạng.',
+            'token.required' => 'Vui lòng nhập mã xác thực OTP.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.min' => 'Mật khẩu phải chứa ít nhất 8 ký tự.',
+            'password.confirmed' => 'Xác nhận mật khẩu không trùng khớp.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->string('password')),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $user = NguoiDung::where('Email', $request->email)->first();
 
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status != Password::PASSWORD_RESET) {
+        if (!$user) {
             throw ValidationException::withMessages([
-                'email' => [__($status)],
+                'email' => ['Địa chỉ email này không tồn tại trong hệ thống.'],
             ]);
         }
 
-        return response()->json(['status' => __($status)]);
+        if ($user->Trang_thai === 'Khoa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
+                'error_code' => 'ACCOUNT_LOCKED',
+                'data' => null,
+                'meta' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        // Lấy bản ghi mã xác thực từ bảng password_reset_tokens
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $user->Email)
+            ->first();
+
+        if (!$resetRecord) {
+            throw ValidationException::withMessages([
+                'token' => ['Mã xác thực không hợp lệ hoặc bạn chưa yêu cầu cấp mã.'],
+            ]);
+        }
+
+        // Kiểm tra thời hạn hiệu lực của mã (60 phút)
+        if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $user->Email)->delete();
+            throw ValidationException::withMessages([
+                'token' => ['Mã xác thực đã hết hạn hiệu lực. Vui lòng yêu cầu cấp lại mã mới.'],
+            ]);
+        }
+
+        // Kiểm tra khớp mã xác thực OTP / Token
+        $inputToken = trim($request->token);
+        $isValidToken = Hash::check($inputToken, $resetRecord->token) || ($inputToken === $resetRecord->token);
+
+        if (!$isValidToken) {
+            throw ValidationException::withMessages([
+                'token' => ['Mã xác thực OTP không chính xác. Vui lòng kiểm tra lại.'],
+            ]);
+        }
+
+        // Cập nhật mật khẩu mới mã hóa an toàn vào bảng Nguoi_dung
+        $user->Mat_khau_ma_hoa = Hash::make($request->password);
+        $user->save();
+
+        // Xóa token đã sử dụng để đảm bảo tính an toàn một lần (single-use)
+        DB::table('password_reset_tokens')->where('email', $user->Email)->delete();
+
+        Log::info("Tài khoản {$user->Email} đã cập nhật mật khẩu mới thành công qua chức năng quên mật khẩu.");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đặt lại mật khẩu thành công! Vui lòng sử dụng mật khẩu mới để đăng nhập.',
+            'error_code' => null,
+            'data' => [
+                'email' => $user->Email,
+            ],
+            'meta' => null,
+            'errors' => null,
+        ], 200);
     }
 }
