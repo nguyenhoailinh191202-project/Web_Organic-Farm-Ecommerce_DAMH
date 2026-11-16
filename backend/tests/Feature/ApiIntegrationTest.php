@@ -120,4 +120,117 @@ class ApiIntegrationTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['email']]);
     }
+
+    public function test_customer_registration_flow(): void
+    {
+        $uniqueEmail = 'khachhang_test_' . uniqid() . '@gmail.com';
+        $uniquePhone = '098' . rand(1000000, 9999999);
+
+        // 1. Đăng ký tài khoản Khách hàng hợp lệ (CV04.3)
+        $response = $this->postJson('/api/register', [
+            'name' => 'Nguyễn Thị Hoa Khách Hàng',
+            'email' => $uniqueEmail,
+            'phone' => $uniquePhone,
+            'password' => 'matkhau123',
+            'password_confirmation' => 'matkhau123',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'customer')
+            ->assertJsonPath('user.email', $uniqueEmail)
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email', 'phone', 'role', 'roles', 'status']]);
+
+        // Đăng xuất sau khi tạo
+        $this->postJson('/api/logout')->assertOk();
+
+        // 2. Thử đăng ký trùng email -> Báo lỗi 422
+        $this->postJson('/api/register', [
+            'name' => 'Người Dùng Trùng Email',
+            'email' => $uniqueEmail,
+            'phone' => '097' . rand(1000000, 9999999),
+            'password' => 'matkhau123',
+            'password_confirmation' => 'matkhau123',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['email']]);
+
+        // 3. Đăng ký mật khẩu không trùng khớp -> Báo lỗi 422
+        $this->postJson('/api/register', [
+            'name' => 'Người Dùng Sai Xác Nhận',
+            'email' => 'different_' . uniqid() . '@gmail.com',
+            'phone' => '096' . rand(1000000, 9999999),
+            'password' => 'matkhau123',
+            'password_confirmation' => 'matkhau456',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['password']]);
+    }
+
+    public function test_forgot_and_reset_password_mailpit_flow(): void
+    {
+        $uniqueTestEmail = 'forgot_test_' . uniqid() . '@nongsansach.vn';
+        $uniqueTestPhone = '091' . rand(1000000, 9999999);
+
+        // Tạo tài khoản khách hàng kiểm thử mới cho luồng reset password
+        $testUser = \App\Models\NguoiDung::create([
+            'Ma_vai_tro' => 4,
+            'Ho_ten' => 'Người Dùng Kiểm Thử Mailpit',
+            'Email' => $uniqueTestEmail,
+            'So_dien_thoai' => $uniqueTestPhone,
+            'Mat_khau_ma_hoa' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+            'Trang_thai' => 'Hoat_dong',
+        ]);
+
+        // 1. Gửi yêu cầu quên mật khẩu đến email khách hàng qua Mailpit (CV04.5)
+        $this->postJson('/api/forgot-password', [
+            'email' => $uniqueTestEmail,
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        // 2. Gửi yêu cầu với email không tồn tại -> Báo lỗi 422
+        $this->postJson('/api/forgot-password', [
+            'email' => 'nonexistent_account_' . uniqid() . '@nongsansach.vn',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['email']]);
+
+        // 3. Đặt lại mật khẩu với token không hợp lệ -> Báo lỗi 422
+        $this->postJson('/api/reset-password', [
+            'token' => 'invalid-token-12345',
+            'email' => $uniqueTestEmail,
+            'password' => 'matkhaumoi888',
+            'password_confirmation' => 'matkhaumoi888',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['email']]);
+
+        // 4. Lấy token hợp lệ từ Password broker để thực hiện đổi mật khẩu
+        $validToken = \Illuminate\Support\Facades\Password::createToken($testUser);
+
+        // 5. Đặt lại mật khẩu thành công bằng token hợp lệ
+        $this->postJson('/api/reset-password', [
+            'token' => $validToken,
+            'email' => $uniqueTestEmail,
+            'password' => 'matkhaumoi888',
+            'password_confirmation' => 'matkhaumoi888',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        // 6. Đăng nhập ngay bằng mật khẩu mới
+        $this->postJson('/api/login', [
+            'email' => $uniqueTestEmail,
+            'password' => 'matkhaumoi888',
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.role', 'customer');
+
+        $this->postJson('/api/logout')->assertOk();
+
+        // 7. Dọn dẹp tài khoản kiểm thử
+        $testUser->delete();
+    }
 }

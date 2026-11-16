@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Xác thực token khôi phục và cập nhật mật khẩu mới.
+ * Xác thực token khôi phục và cập nhật mật khẩu mới (CV04.5).
  */
 
 namespace App\Http\Controllers\Auth;
@@ -29,17 +29,19 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'token.required' => 'Mã xác thực không hợp lệ hoặc đã hết hạn.',
+            'email.required' => 'Vui lòng nhập địa chỉ email.',
+            'email.email' => 'Địa chỉ email không đúng định dạng.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
                 $user->forceFill([
-                    'password' => Hash::make($request->string('password')),
-                    'remember_token' => Str::random(60),
+                    'Mat_khau_ma_hoa' => Hash::make($request->string('password')),
                 ])->save();
 
                 event(new PasswordReset($user));
@@ -52,6 +54,10 @@ class NewPasswordController extends Controller
             ]);
         }
 
-        return response()->json(['status' => __($status)]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.',
+            'status' => __($status),
+        ]);
     }
 }

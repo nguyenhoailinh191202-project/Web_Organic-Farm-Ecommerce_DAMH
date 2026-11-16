@@ -42,6 +42,7 @@ export default function AppRouter() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="password-reset/:token" element={<ForgotPasswordPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<RoleGuard roles={["customer"]} />}>
               <Route path="cart" element={<CartPage />} />

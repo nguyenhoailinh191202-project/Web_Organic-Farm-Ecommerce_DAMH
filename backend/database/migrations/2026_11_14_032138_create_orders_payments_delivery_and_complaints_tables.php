@@ -81,7 +81,9 @@ return new class extends Migration {
             $table->foreign('Ma_dang_ky_goi', 'fk_tt_dang_ky_goi')->references('Ma_dang_ky')->on('Dang_ky_goi');
         });
 
-        DB::statement('ALTER TABLE Thanh_toan ADD CONSTRAINT chk_tt_doi_tuong CHECK (Ma_don_hang IS NOT NULL OR Ma_dang_ky_goi IS NOT NULL)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE Thanh_toan ADD CONSTRAINT chk_tt_doi_tuong CHECK (Ma_don_hang IS NOT NULL OR Ma_dang_ky_goi IS NOT NULL)');
+        }
 
         Schema::create('Giao_hang', function (Blueprint $table) {
             $table->id('Ma_giao_hang');

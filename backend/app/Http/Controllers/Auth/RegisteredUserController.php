@@ -1,45 +1,85 @@
 <?php
 
 /*
- * Đăng ký tài khoản và gán role mặc định customer qua Spatie.
+ * Đăng ký tài khoản Khách hàng mới (CV04.3).
  */
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\NguoiDung;
+use App\Models\VaiTro;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Handle an incoming registration request.
-     *
-     * @throws ValidationException
      */
-    public function store(Request $request): Response
+    public function store(Request $request): Response|JsonResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:150', 'unique:Nguoi_dung,Email'],
+            'phone' => ['nullable', 'string', 'max:15', 'unique:Nguoi_dung,So_dien_thoai'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.required' => 'Vui lòng nhập họ và tên.',
+            'email.required' => 'Vui lòng nhập địa chỉ email.',
+            'email.email' => 'Địa chỉ email không đúng định dạng.',
+            'email.unique' => 'Địa chỉ email này đã được sử dụng.',
+            'phone.unique' => 'Số điện thoại này đã được sử dụng.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.confirmed' => 'Xác nhận mật khẩu không trùng khớp.',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
+        // Lấy mã vai trò Customer (mặc định là 4)
+        $customerRole = VaiTro::where('Ten_vai_tro', 'Customer')->value('Ma_vai_tro') ?? 4;
+
+        $user = NguoiDung::create([
+            'Ma_vai_tro' => $customerRole,
+            'Ho_ten' => $validated['name'],
+            'Email' => $validated['email'],
+            'So_dien_thoai' => $request->input('phone') ?? $request->input('so_dien_thoai'),
+            'Mat_khau_ma_hoa' => Hash::make($validated['password']),
+            'Trang_thai' => 'Hoat_dong',
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $userData = [
+            'id' => $user->Ma_nguoi_dung,
+            'name' => $user->Ho_ten,
+            'email' => $user->Email,
+            'phone' => $user->So_dien_thoai,
+            'role' => 'customer',
+            'roles' => ['customer'],
+            'status' => 'active',
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đăng ký tài khoản thành công!',
+                'error_code' => null,
+                'data' => [
+                    'user' => $userData,
+                    'token' => $token,
+                ],
+                'user' => $userData,
+                'token' => $token,
+            ], 201);
+        }
 
         return response()->noContent();
     }
