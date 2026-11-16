@@ -28,10 +28,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Tránh redirect sang route('login') gây lỗi 500 trên các request API
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/login');
 
-        // Khai báo alias middleware RBAC phân quyền vai trò và quyền hạn (CV04.6)
+        // Khai báo alias middleware RBAC phân quyền vai trò và quyền hạn theo README.md
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-            'permission' => \App\Http\Middleware\CheckPermission::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
