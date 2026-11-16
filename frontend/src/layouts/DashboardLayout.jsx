@@ -1,13 +1,12 @@
 /* Shared dashboard frame for farm staff, sales, and administrators. */
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import {
   ChevronDown,
   LogOut,
   Menu,
   ShieldAlert,
   Sprout,
-  Store,
 } from "lucide-react";
 import DynamicSidebar from "../components/navigation/DynamicSidebar";
 import { useAuth } from "../context/useAuth";
@@ -97,17 +96,8 @@ export default function DashboardLayout() {
             </div>
           </div>
 
-          {/* Right: Quick Store Link & User Profile Dropdown */}
+          {/* Right: User Profile Dropdown */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link
-              to="/"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold text-[#00450d] bg-[#f2f4f2] hover:bg-white border border-[#c0c9bb]/30 transition-all shadow-2xs"
-            >
-              <Store className="w-4 h-4 text-[#006e1c]" />
-              <span>Xem Cửa Hàng</span>
-            </Link>
-
-            {/* Profile Dropdown */}
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
@@ -142,17 +132,6 @@ export default function DashboardLayout() {
                     >
                       {roleInfo.label}
                     </span>
-                  </div>
-
-                  <div className="py-1">
-                    <Link
-                      to="/"
-                      onClick={() => setIsUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-[12.5px] font-semibold text-[#41493e] hover:text-[#00450d] hover:bg-[#f2f4f2]"
-                    >
-                      <Store className="w-4 h-4 text-[#006e1c]" />
-                      <span>Xem Cửa Hàng XanhFarm</span>
-                    </Link>
                   </div>
 
                   {user?.role === "farm_staff" && (
