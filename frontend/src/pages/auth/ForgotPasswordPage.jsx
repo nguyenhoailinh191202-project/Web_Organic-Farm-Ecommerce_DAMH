@@ -478,22 +478,6 @@ export default function ForgotPasswordPage() {
             </form>
           )}
         </div>
-
-        {/* Card Footer Trust Badges */}
-        <div className="bg-surface-container-low px-6 py-3.5 border-t border-outline-variant/20 flex flex-wrap items-center justify-around gap-2 text-[11px] font-semibold text-on-surface-variant">
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">verified_user</span>
-            Mã OTP 6 số bảo mật
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-secondary">timer</span>
-            Hiệu lực 60 phút
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">encrypted</span>
-            Bcrypt an toàn
-          </span>
-        </div>
       </div>
     </div>
   );

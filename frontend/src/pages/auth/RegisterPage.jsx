@@ -449,22 +449,6 @@ export default function RegisterPage() {
             </form>
           )}
         </div>
-
-        {/* Card Footer Trust Badges */}
-        <div className="bg-surface-container-low px-6 py-3.5 border-t border-outline-variant/20 flex flex-wrap items-center justify-around gap-2 text-[11px] font-semibold text-on-surface-variant">
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">eco</span>
-            100% Hữu cơ VietGAP
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-secondary">local_shipping</span>
-            Giao tươi trong 2H
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">loyalty</span>
-            Tích điểm đổi quà
-          </span>
-        </div>
       </div>
     </div>
   );

@@ -274,22 +274,6 @@ export default function LoginPage() {
             </div>
           </form>
         </div>
-
-        {/* Card Footer Trust Badges */}
-        <div className="bg-surface-container-low px-6 py-3.5 border-t border-outline-variant/20 flex flex-wrap items-center justify-around gap-2 text-[11px] font-semibold text-on-surface-variant">
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">security</span>
-            Xác thực Sanctum
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-secondary">alt_route</span>
-            Phân luồng 4 vai trò
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-primary">shield</span>
-            Bảo mật RBAC
-          </span>
-        </div>
       </div>
     </div>
   );
