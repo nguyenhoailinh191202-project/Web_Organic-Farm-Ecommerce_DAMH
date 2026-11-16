@@ -24,15 +24,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+->withMiddleware(function (Middleware $middleware) {
         // Tránh redirect sang route('login') gây lỗi 500 trên các request API
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/login');
 
-        // Khai báo alias middleware RBAC phân quyền vai trò và quyền hạn theo README.md
+        // Đăng ký alias middleware RBAC của hệ thống
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'role'               => \App\Http\Middleware\CheckRole::class,
+            'permission'         => \App\Http\Middleware\CheckPermission::class,
+            'role_or_permission' => \App\Http\Middleware\CheckRoleOrPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
