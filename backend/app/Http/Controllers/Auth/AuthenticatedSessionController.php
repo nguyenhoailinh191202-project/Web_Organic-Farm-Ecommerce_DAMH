@@ -118,19 +118,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Hủy phiên đăng nhập và thu hồi token.
      */
-    public function destroy(Request $request): JsonResponse
-    {
-        if ($request->user()) {
-            $request->user()->currentAccessToken()?->delete();
-        }
+   public function destroy(Request $request): JsonResponse
+{
+    $request->user()?->currentAccessToken()?->delete();
 
-        Auth::guard('web')->logout();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đăng xuất khỏi hệ thống thành công.',
-            'data' => null,
-            'errors' => null,
-        ], 200);
-    }
+    return response()->json([
+        'success'    => true,
+        'message'    => 'Đăng xuất khỏi hệ thống thành công.',
+        'error_code' => null,
+        'data'       => null,
+        'meta'       => null,
+        'errors'     => null,
+    ], 200);
+}
 }
