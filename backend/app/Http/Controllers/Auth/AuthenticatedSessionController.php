@@ -8,26 +8,28 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\NguoiDung;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class AuthenticatedSessionController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Xác thực thông tin đăng nhập và trả về người dùng, token và đường dẫn điều hướng theo vai trò.
      */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ], [
-            'email.required' => 'Vui lòng nhập địa chỉ email.',
-            'email.email' => 'Địa chỉ email không đúng định dạng.',
+            'email.required'    => 'Vui lòng nhập địa chỉ email.',
+            'email.email'       => 'Địa chỉ email không đúng định dạng.',
             'password.required' => 'Vui lòng nhập mật khẩu.',
         ]);
 
@@ -35,14 +37,17 @@ class AuthenticatedSessionController extends Controller
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-            return response()->json([
-                'success' => false,
-                'message' => "Đăng nhập thất bại quá nhiều lần. Vui lòng thử lại sau {$seconds} giây.",
-                'error_code' => 'TOO_MANY_REQUESTS',
-                'errors' => [
-                    'email' => ["Thao tác quá nhanh. Vui lòng đợi {$seconds} giây trước khi thử lại."]
+
+            return $this->errorResponse(
+                message: "Đăng nhập thất bại quá nhiều lần. Vui lòng thử lại sau {$seconds} giây.",
+                status: 429,
+                errorCode: self::ERR_TOO_MANY_REQUESTS,
+                errors: [
+                    'email' => ["Thao tác quá nhanh. Vui lòng đợi {$seconds} giây trước khi thử lại."],
                 ],
-            ], 429);
+                meta: ['retry_after' => $seconds],
+                headers: ['Retry-After' => (string) $seconds]
+            );
         }
 
         $user = NguoiDung::with('vaiTro.quyens')
@@ -50,87 +55,72 @@ class AuthenticatedSessionController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->Mat_khau_ma_hoa)) {
-            RateLimiter::hit($throttleKey);
-            return response()->json([
-                'success' => false,
-                'message' => 'Email hoặc mật khẩu không chính xác.',
-                'error_code' => 'INVALID_CREDENTIALS',
-                'errors' => [
-                    'email' => ['Email hoặc mật khẩu không chính xác.']
-                ],
-            ], 422);
+            RateLimiter::hit($throttleKey, 60);
+
+            return $this->errorResponse(
+                message: 'Email hoặc mật khẩu không chính xác.',
+                status: 422,
+                errorCode: self::ERR_VALIDATION,
+                errors: [
+                    'email' => ['Email hoặc mật khẩu không chính xác.'],
+                ]
+            );
         }
 
-        // Kiểm tra trạng thái hoạt động của tài khoản
         if ($user->Trang_thai === 'Khoa') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
-                'error_code' => 'ACCOUNT_LOCKED',
-                'errors' => null,
-            ], 403);
+            return $this->errorResponse(
+                message: 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
+                status: 403,
+                errorCode: self::ERR_FORBIDDEN
+            );
         }
 
         RateLimiter::clear($throttleKey);
 
-        // Xác định vai trò chuẩn hóa và điều hướng phân luồng
-        $maVaiTro = (int)$user->Ma_vai_tro;
-        $role = match ($maVaiTro) {
-            1 => 'admin',
-            2 => 'sales',
-            3 => 'farm_staff',
-            default => 'customer',
-        };
+        $role = $user->getRoleSlug();
 
         $redirectUrl = match ($role) {
-            'admin' => '/admin',
-            'sales' => '/sales/orders',
+            'admin'      => '/admin',
+            'sales'      => '/sales/orders',
             'farm_staff' => '/farm/seasons',
-            default => '/',
+            default      => '/',
         };
 
         $permissions = $user->vaiTro?->quyens->pluck('Ten_quyen')->toArray() ?? [];
-
-        // Khởi tạo token Sanctum cho phiên làm việc
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Đăng nhập thành công.',
-            'data' => [
+        return $this->successResponse(
+            message: 'Đăng nhập thành công.',
+            data: [
                 'user' => [
-                    'id' => $user->Ma_nguoi_dung,
-                    'name' => $user->Ho_ten,
-                    'email' => $user->Email,
-                    'phone' => $user->So_dien_thoai,
-                    'role' => $role,
-                    'roles' => [$role],
-                    'vai_tro' => $role,
+                    'id'          => $user->Ma_nguoi_dung,
+                    'name'        => $user->Ho_ten,
+                    'email'       => $user->Email,
+                    'phone'       => $user->So_dien_thoai,
+                    'role'        => $role,
+                    'roles'       => [$role],
+                    'vai_tro'     => $role,
+                    'status'      => $user->Trang_thai,
                     'permissions' => $permissions,
                 ],
-                'token' => $token,
+                'token'        => $token,
                 'redirect_url' => $redirectUrl,
             ],
-            'errors' => null,
-        ], 200);
+            status: 200
+        );
     }
 
     /**
-     * Hủy phiên đăng nhập và thu hồi token.
+     * Hủy phiên đăng nhập và thu hồi token Sanctum hiện tại.
      */
     public function destroy(Request $request): JsonResponse
     {
-        if ($request->user()) {
-            $request->user()->currentAccessToken()?->delete();
-        }
+        $request->user()?->currentAccessToken()?->delete();
 
-        Auth::guard('web')->logout();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đăng xuất khỏi hệ thống thành công.',
-            'data' => null,
-            'errors' => null,
-        ], 200);
+        return $this->successResponse(
+            message: 'Đăng xuất khỏi hệ thống thành công.',
+            data: null,
+            status: 200
+        );
     }
 }
