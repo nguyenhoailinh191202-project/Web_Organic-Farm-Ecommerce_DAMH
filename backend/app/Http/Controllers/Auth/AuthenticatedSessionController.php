@@ -96,28 +96,10 @@ public function store(Request $request): JsonResponse
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response|JsonResponse
+    public function destroy(Request $request): JsonResponse
     {
-        /** @var \App\Models\NguoiDung|null $user */
-        $user = Auth::user();
-        if ($user && method_exists($user, 'tokens')) {
-            $user->tokens()->delete();
-        }
+        $request->user()?->currentAccessToken()?->delete();
 
-        Auth::guard('web')->logout();
-
-        if ($request->hasSession()) {
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Đăng xuất thành công.',
-            ], 200);
-        }
-
-        return response()->noContent();
+        return $this->successResponse(message: 'Đăng xuất thành công.');
     }
 }
