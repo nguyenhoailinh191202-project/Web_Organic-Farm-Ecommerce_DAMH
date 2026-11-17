@@ -43,11 +43,17 @@ class RegisteredUserController extends Controller
         // Lấy mã vai trò Customer (mặc định là 4)
         $customerRole = VaiTro::where('Ten_vai_tro', 'Customer')->value('Ma_vai_tro') ?? 4;
 
+        $phone = $validated['phone'] ?? $request->input('so_dien_thoai');
+        $cleanPhone = ($phone !== null && trim($phone) !== '') ? trim($phone) : null;
+
         $user = NguoiDung::create([
             'Ma_vai_tro'      => $customerRole,
             'Ho_ten'          => $validated['name'],
             'Email'           => $validated['email'],
-            'So_dien_thoai'   => $validated['phone'] ?? $request->input('so_dien_thoai'),
+            'So_dien_thoai'   => $cleanPhone,
+            'Mat_khau_ma_hoa' => Hash::make($validated['password']),
+            'Trang_thai'      => 'Hoat_dong',
+        ]);
             'Mat_khau_ma_hoa' => Hash::make($validated['password']),
             'Trang_thai'      => 'Hoat_dong',
         ]);
