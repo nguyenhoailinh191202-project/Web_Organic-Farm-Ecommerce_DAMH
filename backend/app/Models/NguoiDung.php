@@ -49,6 +49,18 @@ class NguoiDung extends Authenticatable
         return $this->belongsTo(VaiTro::class, 'Ma_vai_tro', 'Ma_vai_tro');
     }
 
+    public function getRoleSlug(): string
+    {
+        $rawRole = $this->vaiTro?->Ten_vai_tro ?? 'Customer';
+
+        return match (strtolower(str_replace([' ', '_'], '', $rawRole))) {
+            'admin' => 'admin',
+            'sales' => 'sales',
+            'farmstaff' => 'farm_staff',
+            default => 'customer',
+        };
+    }
+
     public function hasPermission(string $tenQuyen): bool
     {
         return $this->vaiTro?->quyens()->where('Ten_quyen', $tenQuyen)->exists() ?? false;

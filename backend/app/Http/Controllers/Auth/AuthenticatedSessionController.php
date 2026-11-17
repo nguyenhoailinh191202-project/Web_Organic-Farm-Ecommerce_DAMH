@@ -12,6 +12,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -84,13 +85,19 @@ public function store(Request $request): JsonResponse
             'permissions' => $user->vaiTro?->quyens->pluck('Ten_quyen')->toArray() ?? [],
         ];
 
-        return $this->successResponse(
-            message: 'Đăng nhập thành công.',
-            data: [
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Đăng nhập thành công.',
+            'error_code' => null,
+            'data'       => [
                 'user'  => $userData,
                 'token' => $token,
-            ]
-        );
+            ],
+            'meta'       => null,
+            'errors'     => null,
+            'user'       => $userData,
+            'token'      => $token,
+        ]);
     }
 
     /**
@@ -98,8 +105,25 @@ public function store(Request $request): JsonResponse
      */
     public function destroy(Request $request): JsonResponse
     {
-        $request->user()?->currentAccessToken()?->delete();
+        if ($user = $request->user()) {
+            $user->currentAccessToken()?->delete();
+        }
 
-        return $this->successResponse(message: 'Đăng xuất thành công.');
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+        }
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Đăng xuất thành công.',
+            'error_code' => null,
+            'data'       => null,
+            'meta'       => null,
+            'errors'     => null,
+        ]);
     }
 }
