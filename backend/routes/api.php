@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -74,38 +78,48 @@ if (app()->environment(['local', 'testing'])) {
     });
 }
 
-// Endpoint lấy thông tin phiên làm việc và quyền hạn người dùng hiện tại (CV04.6)
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) use ($standardOk) {
-    $user = $request->user();
+// Các API xác thực người dùng công khai (CV04.3 - CV04.5)
+Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
+Route::post('/reset-password', [NewPasswordController::class, 'store']);
 
-    if ($user->Trang_thai === 'Khoa') {
-        $user->currentAccessToken()?->delete();
+// Các API yêu cầu đăng nhập qua Sanctum Token (CV04.4 & CV04.6)
+Route::middleware('auth:sanctum')->group(function () use ($standardOk) {
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-        return response()->json([
-            'success'    => false,
-            'message'    => 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên.',
-            'error_code' => 'FORBIDDEN',
-            'data'       => null,
-            'meta'       => null,
-            'errors'     => null,
-        ], 403);
-    }
+    Route::get('/user', function (Request $request) use ($standardOk) {
+        $user = $request->user();
 
-    $user->loadMissing('vaiTro.quyens');
-    $roleSlug = $user->getRoleSlug();
+        if ($user->Trang_thai === 'Khoa') {
+            $user->currentAccessToken()?->delete();
 
-    return $standardOk('Lấy thông tin phiên làm việc thành công.', [
-        'user' => [
-            'id'     => $user->Ma_nguoi_dung,
-            'name'   => $user->Ho_ten,
-            'email'  => $user->Email,
-            'phone'  => $user->So_dien_thoai,
-            'role'   => $roleSlug,
-            'roles'  => [$roleSlug],
-            'status' => $user->Trang_thai,
-        ],
-        'permissions' => $user->vaiTro?->quyens->pluck('Ten_quyen')->toArray() ?? [],
-    ]);
+            return response()->json([
+                'success'    => false,
+                'message'    => 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên.',
+                'error_code' => 'FORBIDDEN',
+                'data'       => null,
+                'meta'       => null,
+                'errors'     => null,
+            ], 403);
+        }
+
+        $user->loadMissing('vaiTro.quyens');
+        $roleSlug = $user->getRoleSlug();
+
+        return $standardOk('Lấy thông tin phiên làm việc thành công.', [
+            'user' => [
+                'id'     => $user->Ma_nguoi_dung,
+                'name'   => $user->Ho_ten,
+                'email'  => $user->Email,
+                'phone'  => $user->So_dien_thoai,
+                'role'   => $roleSlug,
+                'roles'  => [$roleSlug],
+                'status' => $user->Trang_thai,
+            ],
+            'permissions' => $user->vaiTro?->quyens->pluck('Ten_quyen')->toArray() ?? [],
+        ]);
+    });
 });
 
 // Webhook công khai từ ApiPay (không qua auth:sanctum, xác thực bằng HMAC signature)
@@ -114,4 +128,32 @@ Route::post('/webhooks/apipay', \App\Http\Controllers\Api\Webhook\ApiPayWebhookC
 // Nhóm API Khách hàng (bảo vệ bằng auth:sanctum + role:customer)
 Route::middleware(['auth:sanctum', 'role:customer'])->prefix('customer')->group(function () {
     Route::post('/checkout', [\App\Http\Controllers\Api\Customer\CheckoutController::class, 'store']);
+});
+
+// Nhóm API Nhân viên Nông trại (bảo vệ bằng auth:sanctum + role:farm_staff)
+Route::middleware(['auth:sanctum', 'role:farm_staff'])->prefix('farm')->group(function () {
+    Route::get('/seasons', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'index']);
+    Route::post('/seasons', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'store']);
+    Route::get('/seasons/{id}', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'show']);
+    Route::put('/seasons/{id}', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'update']);
+    Route::delete('/seasons/{id}', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'destroy']);
+    Route::post('/seasons/{id}/plots', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'storePlot']);
+    Route::put('/seasons/{id}/plots/{plotId}', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'updatePlot']);
+    Route::delete('/seasons/{id}/plots/{plotId}', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'destroyPlot']);
+    Route::get('/products', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'getProducts']);
+    Route::get('/info', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'getFarmInfo']);
+    Route::put('/info', [\App\Http\Controllers\Api\FarmStaff\SeasonController::class, 'updateFarmInfo']);
+
+    Route::get('/farming-logs', [\App\Http\Controllers\Api\FarmStaff\FarmingLogController::class, 'index']);
+    Route::post('/farming-logs', [\App\Http\Controllers\Api\FarmStaff\FarmingLogController::class, 'store']);
+    Route::delete('/farming-logs/{id}', [\App\Http\Controllers\Api\FarmStaff\FarmingLogController::class, 'destroy']);
+});
+
+// Nhóm API Quản trị viên (bảo vệ bằng auth:sanctum + role:admin)
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/reports/dashboard', [\App\Http\Controllers\Api\Admin\ReportController::class, 'dashboard']);
+    Route::get('/users', [\App\Http\Controllers\Api\Admin\UserRoleController::class, 'index']);
+    Route::put('/users/{id}/status', [\App\Http\Controllers\Api\Admin\UserRoleController::class, 'updateStatus']);
+    Route::get('/settings', [\App\Http\Controllers\Api\Admin\SystemSettingController::class, 'index']);
+    Route::put('/settings', [\App\Http\Controllers\Api\Admin\SystemSettingController::class, 'update']);
 });

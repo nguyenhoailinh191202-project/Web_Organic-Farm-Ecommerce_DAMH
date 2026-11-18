@@ -1,2 +1,46 @@
 /* Tailwind CSS entry point and shared application styles. */
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #00450d;
+  --color-primary-hover: #006e1c;
+  --color-primary-container: #1b5e20;
+  --color-secondary: #006e1c;
+  --color-secondary-container: #91f78e;
+  --color-background: #f8faf8;
+  --color-surface: #f8faf8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f4f2;
+  --color-surface-container: #eceeec;
+  --color-on-surface: #191c1b;
+  --color-on-surface-variant: #41493e;
+  --color-outline: #5a6357;
+  --color-outline-variant: #c0c9bb;
+  --font-headline: "Epilogue", sans-serif;
+  --font-body: "Plus Jakarta Sans", sans-serif;
+}
+
+:root {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shrinkWidth {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

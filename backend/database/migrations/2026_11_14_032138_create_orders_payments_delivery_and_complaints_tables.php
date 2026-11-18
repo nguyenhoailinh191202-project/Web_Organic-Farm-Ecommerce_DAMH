@@ -31,6 +31,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['Ngay_dat', 'Trang_thai'], 'idx_dh_ngay_trang_thai');
+            $table->index(['Trang_thai', 'Ngay_dat'], 'idx_dh_trang_thai_ngay_dat');
+            $table->index(['Ma_nguoi_dung', 'Trang_thai', 'Ngay_dat'], 'idx_dh_user_trang_thai');
             $table->foreign('Ma_nguoi_dung', 'fk_dh_nguoi_dung')->references('Ma_nguoi_dung')->on('Nguoi_dung');
             $table->foreign('Ma_dia_chi', 'fk_dh_dia_chi')->references('Ma_dia_chi')->on('Dia_chi_giao_hang');
             $table->foreign('Ma_nhan_vien_xac_nhan', 'fk_dh_nhan_vien')->references('Ma_nguoi_dung')->on('Nguoi_dung');
@@ -86,7 +88,9 @@ return new class extends Migration
             $table->foreign('Ma_dang_ky_goi', 'fk_tt_dang_ky_goi')->references('Ma_dang_ky')->on('Dang_ky_goi');
         });
 
-        DB::statement('ALTER TABLE Thanh_toan ADD CONSTRAINT chk_tt_doi_tuong CHECK (Ma_don_hang IS NOT NULL OR Ma_dang_ky_goi IS NOT NULL)');
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE Thanh_toan ADD CONSTRAINT chk_tt_doi_tuong CHECK (Ma_don_hang IS NOT NULL OR Ma_dang_ky_goi IS NOT NULL)');
+        }
 
         Schema::create('Giao_hang', function (Blueprint $table) {
             $table->id('Ma_giao_hang');
