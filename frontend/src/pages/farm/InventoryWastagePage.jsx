@@ -86,27 +86,33 @@ export default function InventoryWastagePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#00450d]">
-            Phân hệ Nông trại • Quản lý tồn kho theo lô
-          </span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">
-            Kiểm Kho & Ghi Nhận Hao Hụt (Xuất Hủy)
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Đối chiếu tồn kho thực tế từng lô thu hoạch, xử lý lô quá hạn FEFO và lưu sổ biến động kho.
-          </p>
-        </div>
+      {/* Top Banner Tiêu Chuẩn Phân Hệ Nông Trại */}
+      <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 border border-emerald-900/10 bg-gradient-to-br from-white via-[#fcfdfa] to-emerald-50/30 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-100/80 text-emerald-900 border border-emerald-300/60">
+                Phân Hệ Nông Trại
+              </span>
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs font-semibold text-emerald-800">
+                Quản lý tồn kho theo lô
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+              Kiểm Kho & Xuất Hủy
+            </h1>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => (activeTab === "audit" ? loadBatches() : loadHistory())}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 w-fit cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Làm mới số liệu</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => (activeTab === "audit" ? loadBatches() : loadHistory())}
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors shadow-2xs w-fit cursor-pointer shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-emerald-700" />
+            <span>Làm mới</span>
+          </button>
+        </div>
       </div>
 
       <WastageStatCards batches={batches} />
@@ -123,7 +129,7 @@ export default function InventoryWastagePage() {
             }`}
           >
             <ClipboardCheck className="w-4 h-4" />
-            <span>1. Kiểm kho thực tế & Cảnh báo cận hạn</span>
+            <span>Kiểm Kho Thực Tế & Cận Hạn</span>
           </button>
 
           <button
@@ -136,7 +142,7 @@ export default function InventoryWastagePage() {
             }`}
           >
             <History className="w-4 h-4" />
-            <span>2. Sổ lịch sử Xuất hủy & Hao hụt</span>
+            <span>Sổ Lịch Sử Xuất Hủy</span>
           </button>
         </div>
 

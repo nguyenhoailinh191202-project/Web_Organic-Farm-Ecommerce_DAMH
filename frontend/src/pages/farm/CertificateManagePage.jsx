@@ -826,11 +826,8 @@ export default function CertificateManagePage() {
             <span className="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/70">
               <Award className="w-5 h-5" />
             </span>
-            <span>Chứng Nhận & Kết Quả Kiểm Định</span>
+            <span>Chứng Nhận & Kiểm Định</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-2xl leading-relaxed">
-            Lưu trữ giấy chứng nhận VietGAP, Hữu cơ và phiếu kết quả kiểm định mẫu đất, nước gắn trực tiếp vào từng lô hàng thu hoạch để minh bạch khi truy xuất nguồn gốc.
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
@@ -851,7 +848,7 @@ export default function CertificateManagePage() {
             className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Tải Chứng Nhận Mới</span>
+            <span>Tải Chứng Nhận</span>
           </button>
         </div>
       </div>
@@ -868,7 +865,6 @@ export default function CertificateManagePage() {
           <div className="text-xl sm:text-2xl font-black text-slate-800 tabular-nums">
             {stats.total}
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Chứng nhận & phiếu kiểm định</p>
         </div>
 
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
@@ -881,7 +877,6 @@ export default function CertificateManagePage() {
           <div className="text-xl sm:text-2xl font-black text-emerald-600 tabular-nums">
             {stats.batch_attached}
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Hiển thị trên hồ sơ truy xuất lô</p>
         </div>
 
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
@@ -894,7 +889,6 @@ export default function CertificateManagePage() {
           <div className="text-xl sm:text-2xl font-black text-emerald-700 tabular-nums">
             {stats.valid}
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Đạt chuẩn lưu hành & bán hàng</p>
         </div>
 
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
@@ -907,9 +901,6 @@ export default function CertificateManagePage() {
           <div className="text-xl sm:text-2xl font-black text-amber-600 tabular-nums">
             {stats.expiring_soon + stats.expired}
           </div>
-          <p className="text-[11px] text-amber-700/80 mt-1">
-            {stats.expiring_soon} sắp hết hạn · {stats.expired} đã hết hạn
-          </p>
         </div>
       </div>
 
@@ -1010,36 +1001,33 @@ export default function CertificateManagePage() {
                 ? "Chưa có hồ sơ chứng nhận nào"
                 : "Không tìm thấy chứng nhận phù hợp bộ lọc"}
             </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              Tải lên giấy chứng nhận VietGAP, Hữu cơ hoặc phiếu kiểm nghiệm đất/nước và gắn trực tiếp vào lô hàng thu hoạch.
-            </p>
             <button
               type="button"
               onClick={() => openCreateModal("")}
               className="mt-4 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>Tải Chứng Nhận Đầu Tiên</span>
+              <span>Tải Chứng Nhận</span>
             </button>
           </div>
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto max-h-[calc(100vh-270px)] min-h-[460px] overflow-y-auto scrollbar-thin">
               <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    <th className="py-3.5 px-5">Chứng Nhận / Kiểm Định</th>
-                    <th className="py-3.5 px-4">Lô Hàng & Nông Sản Gắn</th>
-                    <th className="py-3.5 px-4">Thời Hạn Hiệu Lực</th>
-                    <th className="py-3.5 px-4">Tệp Bản Scan</th>
-                    <th className="py-3.5 px-5 text-right">Thao Tác</th>
+                <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 shadow-2xs">
+                  <tr className="bg-slate-50/95 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th className="py-2.5 px-4 sm:px-5">Chứng Nhận / Kiểm Định</th>
+                    <th className="py-2.5 px-3.5">Lô Hàng & Nông Sản Gắn</th>
+                    <th className="py-2.5 px-3.5">Thời Hạn Hiệu Lực</th>
+                    <th className="py-2.5 px-3.5">Tệp Bản Scan</th>
+                    <th className="py-2.5 px-4 sm:px-5 text-right">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                <tbody className="divide-y divide-slate-100 text-xs">
                   {filteredCertificates.map((cert) => (
                     <tr key={cert.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-4 px-5 max-w-xs">
+                      <td className="py-3 px-4 sm:px-5 max-w-xs">
                         <div className="flex items-start gap-3 min-w-0">
                           <div
                             className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
@@ -1161,7 +1149,7 @@ export default function CertificateManagePage() {
             </div>
 
             {/* Mobile Card List */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="md:hidden divide-y divide-slate-100 max-h-[calc(100vh-270px)] overflow-y-auto scrollbar-thin">
               {filteredCertificates.map((cert) => (
                 <div key={cert.id} className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-2.5">

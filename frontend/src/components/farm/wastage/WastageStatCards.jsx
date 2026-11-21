@@ -21,7 +21,6 @@ export default function WastageStatCards({ batches = [] }) {
       label: "LÔ ĐANG LƯU KHO",
       value: activeBatches.length,
       unit: "lô",
-      sub: "Còn tồn kho khả dụng",
       icon: PackageCheck,
       tone: "text-[#00450d] bg-emerald-50",
     },
@@ -29,55 +28,56 @@ export default function WastageStatCards({ batches = [] }) {
       label: "CẬN HẠN / HẾT HẠN",
       value: alertBatches.length,
       unit: "lô",
-      sub: "HSD ≤ 2 ngày (cần kiểm tra)",
+      sub: alertBatches.length > 0 ? "Cần kiểm tra HSD" : "",
       icon: AlertTriangle,
       tone: alertBatches.length > 0 ? "text-rose-700 bg-rose-50" : "text-slate-600 bg-slate-100",
       highlight: alertBatches.length > 0,
     },
     {
-      label: "TỔNG XUẤT HỦY / HAO HỤT",
+      label: "TỔNG XUẤT HỦY",
       value: totalWastage.toLocaleString("vi-VN"),
       unit: "đơn vị",
-      sub: "Đã trừ khỏi tồn kho thực tế",
       icon: Trash2,
       tone: "text-amber-800 bg-amber-50",
     },
     {
-      label: "TỶ LỆ HAO HỤT KHO",
+      label: "TỶ LỆ HAO HỤT",
       value: `${wastageRate}%`,
       unit: "",
-      sub: Number(wastageRate) <= 5 ? "Đạt chuẩn vận hành (< 5%)" : "Vượt ngưỡng cảnh báo (5%)",
+      sub: Number(wastageRate) <= 5 ? "Chuẩn an toàn (< 5%)" : "Cảnh báo (> 5%)",
       icon: TrendingDown,
       tone: Number(wastageRate) <= 5 ? "text-emerald-800 bg-emerald-50" : "text-rose-700 bg-rose-50",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.label}
-            className={`rounded-2xl border p-4 bg-white shadow-2xs ${
-              card.highlight ? "border-rose-300 bg-rose-50/30" : "border-slate-200"
-            }`}
+            className={`p-3 sm:p-3.5 rounded-xl border transition-all ${
+              card.highlight
+                ? "border-rose-300 bg-rose-50/40"
+                : "border-slate-200/80 bg-white"
+            } shadow-2xs`}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-500 uppercase truncate">
                 {card.label}
               </span>
-              <span className={`p-2 rounded-xl ${card.tone}`}>
-                <Icon className="w-4 h-4" />
+              <span className={`p-1.5 rounded-lg shrink-0 ${card.tone}`}>
+                <Icon className="w-3.5 h-3.5" />
               </span>
             </div>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className={`text-2xl font-black ${card.highlight ? "text-rose-700" : "text-slate-900"}`}>
+            <div className="mt-1.5 flex items-baseline gap-1">
+              <span className={`text-xl sm:text-2xl font-black ${card.highlight ? "text-rose-700" : "text-slate-900"}`}>
                 {card.value}
               </span>
-              {card.unit && <span className="text-xs font-semibold text-slate-500">{card.unit}</span>}
+              {card.unit && <span className="text-[11px] font-semibold text-slate-500">{card.unit}</span>}
             </div>
-            <p className="mt-1 text-xs text-slate-500">{card.sub}</p>
+            {card.sub ? <p className="mt-0.5 text-[11px] text-slate-500 truncate">{card.sub}</p> : null}
           </div>
         );
       })}

@@ -84,16 +84,16 @@ export default function InventoryAuditTab({ batches = [], onOpenWastageModal }) 
           Không có lô hàng nào phù hợp điều kiện kiểm kho hiện tại.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200/80 max-h-[calc(100vh-270px)] min-h-[440px] overflow-y-auto scrollbar-thin">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500">
-                <th className="py-3 px-4">Lô hàng & Nông sản</th>
-                <th className="py-3 px-4">Hạn sử dụng</th>
-                <th className="py-3 px-4">Tồn kho sổ sách</th>
-                <th className="py-3 px-4">Đã hao hụt</th>
-                <th className="py-3 px-4">Cảnh báo FEFO</th>
-                <th className="py-3 px-4 text-right">Thao tác kiểm kho</th>
+            <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 shadow-2xs">
+              <tr className="bg-slate-50/95 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="py-2.5 px-3.5 sm:px-4">Lô hàng & Nông sản</th>
+                <th className="py-2.5 px-3">Hạn sử dụng</th>
+                <th className="py-2.5 px-3">Tồn kho sổ sách</th>
+                <th className="py-2.5 px-3">Đã hao hụt</th>
+                <th className="py-2.5 px-3">Cảnh báo FEFO</th>
+                <th className="py-2.5 px-3.5 sm:px-4 text-right">Thao tác kiểm kho</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">

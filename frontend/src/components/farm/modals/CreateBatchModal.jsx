@@ -312,16 +312,16 @@ export default function CreateBatchModal({
         >
           {/* Callout: Nguồn mốc thu hoạch (Trỏ từ mốc Thu hoạch) */}
           {initialHarvestLog && (
-            <div className="p-3.5 bg-purple-50/90 border border-purple-200/80 rounded-2xl text-xs text-purple-900 flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-emerald-50/90 border border-emerald-200/80 rounded-2xl text-xs text-emerald-950 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <div className="min-w-0">
                 <p className="font-bold">
-                  Trỏ từ mốc thu hoạch:{" "}
+                  Từ mốc thu hoạch:{" "}
                   {initialHarvestLog.staff_name
-                    ? `Kỹ thuật viên ${initialHarvestLog.staff_name}`
+                    ? `KTV ${initialHarvestLog.staff_name}`
                     : "Đồng ruộng"}
                 </p>
-                <p className="text-purple-700 mt-0.5 line-clamp-2 break-words">
+                <p className="text-emerald-800 mt-0.5 line-clamp-2 break-words">
                   "{initialHarvestLog.content || initialHarvestLog.Noi_dung || "Thu hoạch nông sản"}"
                 </p>
               </div>

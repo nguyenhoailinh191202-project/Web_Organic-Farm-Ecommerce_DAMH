@@ -52,16 +52,16 @@ export default function WastageHistoryTab({
           Chưa có phiếu xuất hủy hoặc điều chỉnh kiểm kho nào được ghi nhận.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200/80 max-h-[calc(100vh-270px)] min-h-[440px] overflow-y-auto scrollbar-thin">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500">
-                <th className="py-3 px-4">Mã phiếu</th>
-                <th className="py-3 px-4">Lô hàng / Nông sản</th>
-                <th className="py-3 px-4">Phân loại</th>
-                <th className="py-3 px-4">Số lượng trừ</th>
-                <th className="py-3 px-4">Lý do ghi nhận</th>
-                <th className="py-3 px-4">Người thực hiện & Thời gian</th>
+            <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 shadow-2xs">
+              <tr className="bg-slate-50/95 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="py-2.5 px-3.5 sm:px-4">Mã phiếu</th>
+                <th className="py-2.5 px-3">Lô hàng / Nông sản</th>
+                <th className="py-2.5 px-3">Phân loại</th>
+                <th className="py-2.5 px-3">Số lượng trừ</th>
+                <th className="py-2.5 px-3">Lý do ghi nhận</th>
+                <th className="py-2.5 px-3.5 sm:px-4">Người thực hiện & Thời gian</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">

@@ -17,6 +17,7 @@ import {
   Pencil,
   MapPin,
   ClipboardList,
+  Layers,
 } from "lucide-react";
 import { farmApi } from "../../services/farmApi";
 import { showGlobalToast, confirmGlobalDialog } from "../../components/GlobalToast";
@@ -744,90 +745,117 @@ export default function SeasonManagePage() {
   const totalArea = seasons.reduce((acc, s) => acc + (s.total_area_m2 || 0), 0);
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Top Banner & Quick Stats */}
-      <div className="bg-[#064e2e] rounded-3xl p-6 sm:p-7 text-white shadow-sm border border-[#0a5c37] relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setFarmForm({
-                    name: farmInfo.name || "Nông Trại Xanh Củ Chi",
-                    address: farmInfo.address || "Ấp 3, Xã Nhuận Đức, Huyện Củ Chi, TP. Hồ Chí Minh",
-                  });
-                  setIsEditFarmModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#043821] hover:bg-[#032e1b] border border-[#0e633c] rounded-full text-xs font-semibold text-emerald-200 transition-colors group cursor-pointer"
-                title="Nhấp để cập nhật tên & địa chỉ cơ sở nông trại"
-              >
-                <MapPin className="w-3.5 h-3.5 text-[#86efac] shrink-0" />
-                <span className="truncate max-w-[280px]">
-                  {farmInfo.address || "Cơ sở #1 • Củ Chi, TP.HCM"}
-                </span>
-                <Pencil className="w-3 h-3 text-emerald-400 opacity-70 group-hover:opacity-100 ml-1 shrink-0" />
-              </button>
+    <div className="space-y-4 sm:space-y-5 pb-10">
+      {/* Top Banner & Quick Stats - Đồng bộ giao diện Staff Farm */}
+      <div className="bg-gradient-to-br from-white via-[#fcfdfa] to-emerald-50/30 rounded-2xl p-4 sm:p-5 shadow-xs border border-emerald-900/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setFarmForm({
+                  name: farmInfo.name || "Nông Trại Xanh Củ Chi",
+                  address: farmInfo.address || "Ấp 3, Xã Nhuận Đức, Huyện Củ Chi, TP. Hồ Chí Minh",
+                });
+                setIsEditFarmModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/80 rounded-full text-[10.5px] font-bold text-emerald-800 transition-colors group cursor-pointer"
+              title="Nhấp để cập nhật tên & địa chỉ cơ sở nông trại"
+            >
+              <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
+              <span className="truncate max-w-[240px]">
+                {farmInfo.address || "Cơ sở #1 • Củ Chi, TP.HCM"}
+              </span>
+              <Pencil className="w-2.5 h-2.5 text-emerald-500 opacity-70 group-hover:opacity-100 ml-0.5 shrink-0" />
+            </button>
 
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#043821]/80 rounded-full text-[11px] font-semibold text-emerald-300 border border-[#0e633c]/60">
-                <Sprout className="w-3.5 h-3.5 text-[#86efac]" />
-                Khu Vực Kỹ Thuật & Vận Hành
-              </div>
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50/70 rounded-full text-[10.5px] font-bold text-emerald-700 border border-emerald-200/60">
+              <Sprout className="w-3 h-3 text-emerald-600" />
+              <span>Phân Hệ Nông Trại</span>
             </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Quản Lý Mùa Vụ & Nhật Ký Canh Tác
-            </h1>
-            <p className="text-emerald-100/80 text-xs sm:text-sm max-w-2xl mt-1.5 leading-relaxed">
-              Kiểm soát chu kỳ gieo trồng, diện tích canh tác từng lô và ghi nhận mốc nhật ký thực địa (ảnh, video) minh bạch theo tiêu chuẩn VietGAP & Hữu cơ TCVN 11041.
-            </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto">
-            <button
-              type="button"
-              onClick={() => setIsAddSeasonOpen(true)}
-              className="w-full sm:w-auto px-4 py-2.5 bg-[#86efac] hover:bg-[#6ee7b7] text-[#064e2e] font-extrabold text-xs rounded-xl shadow-xs hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 shrink-0" />
-              <span>Thêm Mùa Vụ Mới</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAddLogOpen(true)}
-              className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <FileText className="w-4 h-4 text-[#86efac] shrink-0" />
-              <span>Ghi Nhật Ký Canh Tác</span>
-            </button>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            Quản Lý Mùa Vụ & Canh Tác
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsAddSeasonOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xs hover:shadow active:scale-[0.98] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <span>Thêm Mùa Vụ</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAddLogOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+            <span>Ghi Nhật Ký</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Stat Cards - Gọn gàng đồng bộ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+        {/* Mùa vụ đang chạy */}
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Mùa Vụ Đang Chạy</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+              <Calendar className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight tabular-nums">
+            {seasons.filter((s) => s.status === "Dang_dien_ra").length}{" "}
+            <span className="text-xs font-semibold text-slate-500">vụ</span>
           </div>
         </div>
 
-        {/* Quick Stat Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mt-6 pt-5 border-t border-[#0f6b41]/60">
-          <div className="bg-[#043821]/80 backdrop-blur-xs p-3 sm:p-3.5 rounded-2xl border border-[#0e633c]/70 min-w-0">
-            <span className="text-[10.5px] sm:text-[11px] font-medium text-emerald-300 truncate block">Mùa vụ đang chạy</span>
-            <div className="text-lg sm:text-2xl font-extrabold mt-0.5 text-white truncate">
-              {seasons.filter((s) => s.status === "Dang_dien_ra").length} vụ
+        {/* Lô đang canh tác */}
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-emerald-800">Lô Đang Canh Tác</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+              <Sprout className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="bg-[#043821]/80 backdrop-blur-xs p-3 sm:p-3.5 rounded-2xl border border-[#0e633c]/70 min-w-0">
-            <span className="text-[10.5px] sm:text-[11px] font-medium text-emerald-300 truncate block">Lô đang canh tác</span>
-            <div className="text-lg sm:text-2xl font-extrabold mt-0.5 text-white truncate">{totalActivePlots} lô</div>
+          <div className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight tabular-nums">
+            {totalActivePlots}{" "}
+            <span className="text-xs font-semibold text-slate-500">lô</span>
           </div>
-          <div className="bg-[#043821]/80 backdrop-blur-xs p-3 sm:p-3.5 rounded-2xl border border-[#0e633c]/70 min-w-0">
-            <span className="text-[10.5px] sm:text-[11px] font-medium text-emerald-300 truncate block">Tổng diện tích</span>
-            <div className="text-lg sm:text-2xl font-extrabold mt-0.5 text-white truncate">
-              {totalArea.toLocaleString()} m²
+        </div>
+
+        {/* Tổng diện tích */}
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Tổng Diện Tích</span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="bg-[#043821]/80 backdrop-blur-xs p-3 sm:p-3.5 rounded-2xl border border-[#0e633c]/70 min-w-0">
-            <span className="text-[10.5px] sm:text-[11px] font-medium text-emerald-300 truncate block">
-              {selectedPlot ? "Lô đang chọn" : "Tổng số lô đất"}
+          <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight tabular-nums">
+            {totalArea.toLocaleString()}{" "}
+            <span className="text-xs font-semibold text-slate-500">m²</span>
+          </div>
+        </div>
+
+        {/* Lô đang chọn */}
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              {selectedPlot ? "Lô Đang Chọn" : "Tổng Số Lô"}
             </span>
-            <div className="text-xs sm:text-sm font-bold mt-1 text-[#86efac] truncate">
-              {selectedPlot ? `${selectedPlot.plot_name} • ${selectedPlot.product_name || "Nông sản"}` : `${allPlots.length} lô`}
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+              <MapPin className="w-3.5 h-3.5" />
             </div>
+          </div>
+          <div className="text-base sm:text-lg font-black text-emerald-800 tracking-tight truncate">
+            {selectedPlot ? `${selectedPlot.plot_name}` : `${allPlots.length} lô`}
           </div>
         </div>
       </div>
@@ -867,28 +895,38 @@ export default function SeasonManagePage() {
       </div>
 
       {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column: Season & Plot Cards (7 cols) */}
-        <div className={`lg:col-span-7 space-y-5 ${mobileTab === "timeline" ? "hidden lg:block" : "block"}`}>
+        <div className={`lg:col-span-7 space-y-3.5 ${mobileTab === "timeline" ? "hidden lg:block" : "block"}`}>
           {/* Controls Bar */}
-          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-100 shadow-xs">
+          <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="relative w-full">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Tìm kiếm mùa vụ canh tác..."
+                placeholder="Tìm mùa vụ, nông sản..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                className="w-full pl-8 pr-7 py-1.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 transition-all placeholder:text-slate-400 shadow-2xs"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5 rounded-full hover:bg-slate-100"
+                  aria-label="Xóa từ khóa"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Season Cards List */}
+          {/* Season Cards List - Khung bo lại và có thanh cuộn mượt */}
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2].map((i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 animate-pulse space-y-3">
+                <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200/80 animate-pulse space-y-3">
                   <div className="h-5 bg-slate-200 rounded w-1/3" />
                   <div className="h-4 bg-slate-100 rounded w-1/2" />
                   <div className="grid grid-cols-2 gap-3 pt-3">
@@ -899,229 +937,228 @@ export default function SeasonManagePage() {
               ))}
             </div>
           ) : filteredSeasons.length === 0 ? (
-            <div className="bg-white p-12 text-center rounded-2xl border border-slate-100 shadow-xs">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-2" />
-              <h3 className="text-sm font-bold text-slate-700">Chưa tìm thấy mùa vụ nào</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Bấm nút &quot;Thêm Mùa Vụ Mới&quot; để thiết lập chu kỳ canh tác cho nông trại.
-              </p>
+            <div className="bg-white p-10 text-center rounded-2xl border border-slate-200/80 shadow-xs">
+              <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <h3 className="text-sm font-bold text-slate-700">Chưa có mùa vụ nào</h3>
             </div>
           ) : (
-            filteredSeasons.map((season) => (
-              <div
-                key={season.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden transition-all hover:border-emerald-300"
-              >
-                {/* Season Card Header */}
-                <div className="p-5 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
-                          season.status === "Dang_dien_ra"
-                            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                            : "bg-slate-200 text-slate-700 border-slate-300"
-                        }`}
-                      >
-                        {season.status === "Dang_dien_ra" ? "Đang diễn ra" : "Đã kết thúc"}
-                      </span>
-                      <span className="text-xs text-slate-500 font-medium">
-                        Bắt đầu: {season.start_date} {season.end_date ? `— Đến: ${season.end_date}` : ""}
-                      </span>
+            <div className="space-y-3.5 max-h-[calc(100vh-270px)] min-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+              {filteredSeasons.map((season) => (
+                <div
+                  key={season.id}
+                  className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden transition-all hover:border-emerald-300/80"
+                >
+                  {/* Season Card Header */}
+                  <div className="p-3.5 sm:p-4 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span
+                          className={`text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${
+                            season.status === "Dang_dien_ra"
+                              ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                              : "bg-slate-200 text-slate-700 border-slate-300"
+                          }`}
+                        >
+                          {season.status === "Dang_dien_ra" ? "Đang diễn ra" : "Đã kết thúc"}
+                        </span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          Bắt đầu: {season.start_date} {season.end_date ? `— Đến: ${season.end_date}` : ""}
+                        </span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900">{season.name}</h3>
                     </div>
-                    <h3 className="text-base font-bold text-slate-800">{season.name}</h3>
-                  </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleSeasonStatus(season)}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-colors ${
-                        season.status === "Dang_dien_ra"
-                          ? "bg-slate-200 hover:bg-slate-300 text-slate-700"
-                          : "bg-emerald-100 hover:bg-emerald-200 text-emerald-800"
-                      }`}
-                      title={season.status === "Dang_dien_ra" ? "Đóng / Kết thúc mùa vụ này" : "Mở lại mùa vụ"}
-                    >
-                      {season.status === "Dang_dien_ra" ? "Kết thúc vụ" : "Mở lại vụ"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveSeasonForPlot(season);
-                        setIsAddPlotOpen(true);
-                      }}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Thêm Lô
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSeason(season)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Xóa mùa vụ này"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Plots Grid */}
-                <div className="p-5">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-between">
-                    <span>Danh sách các lô canh tác ({season.plots?.length || 0})</span>
-                    <span className="text-[11px] text-slate-400 normal-case">
-                      Tổng diện tích: <strong>{(season.total_area_m2 || 0).toLocaleString()} m²</strong>
-                    </span>
-                  </h4>
-
-                  {!season.plots || season.plots.length === 0 ? (
-                    <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                      <p className="text-xs text-slate-500">Mùa vụ này chưa có lô canh tác nào.</p>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSeasonStatus(season)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer ${
+                          season.status === "Dang_dien_ra"
+                            ? "bg-slate-200 hover:bg-slate-300 text-slate-700"
+                            : "bg-emerald-100 hover:bg-emerald-200 text-emerald-800"
+                        }`}
+                        title={season.status === "Dang_dien_ra" ? "Đóng / Kết thúc mùa vụ này" : "Mở lại mùa vụ"}
+                      >
+                        {season.status === "Dang_dien_ra" ? "Kết thúc vụ" : "Mở lại vụ"}
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
                           setActiveSeasonForPlot(season);
                           setIsAddPlotOpen(true);
                         }}
-                        className="text-xs font-bold text-emerald-700 hover:underline mt-1 inline-block"
+                        className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
                       >
-                        + Thêm lô gieo trồng ngay
+                        <Plus className="w-3 h-3" />
+                        <span>Thêm Lô</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSeason(season)}
+                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        title="Xóa mùa vụ này"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {season.plots.map((plot) => {
-                        const isSelected = selectedPlot?.id === plot.id;
+                  </div>
 
-                        return (
-                          <div
-                            key={plot.id}
-                            onClick={() => handleSelectPlot(plot)}
-                            className={`p-4 rounded-2xl border transition-all text-left relative flex flex-col justify-between cursor-pointer group ${
-                              isSelected
-                                ? "bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
-                                : "bg-white border-slate-200/90 hover:border-emerald-300 hover:shadow-xs"
-                            }`}
-                          >
-                            <div>
-                              <div className="flex items-start justify-between gap-2 mb-2.5">
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <div
-                                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
-                                      isSelected
-                                        ? "bg-emerald-600 text-white shadow-xs"
-                                        : "bg-emerald-100 text-emerald-800 group-hover:bg-emerald-200"
+                  {/* Plots Grid - Bo lại và có thanh cuộn mượt cho từng mùa vụ */}
+                  <div className="p-3 sm:p-3.5">
+                    <h4 className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                      <span>Lô canh tác ({season.plots?.length || 0})</span>
+                      <span className="text-[10.5px] text-slate-400 normal-case">
+                        Tổng: <strong className="text-slate-700">{(season.total_area_m2 || 0).toLocaleString()} m²</strong>
+                      </span>
+                    </h4>
+
+                    {!season.plots || season.plots.length === 0 ? (
+                      <div className="text-center py-5 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-xs text-slate-500">Mùa vụ này chưa có lô canh tác nào.</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveSeasonForPlot(season);
+                            setIsAddPlotOpen(true);
+                          }}
+                          className="text-xs font-bold text-emerald-700 hover:underline mt-1 inline-block cursor-pointer"
+                        >
+                          + Thêm lô
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin">
+                        {season.plots.map((plot) => {
+                          const isSelected = selectedPlot?.id === plot.id;
+
+                          return (
+                            <div
+                              key={plot.id}
+                              onClick={() => handleSelectPlot(plot)}
+                              className={`p-3 rounded-xl border transition-all text-left relative flex flex-col justify-between cursor-pointer group ${
+                                isSelected
+                                  ? "bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
+                                  : "bg-white border-slate-200/90 hover:border-emerald-300 hover:shadow-2xs"
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-start justify-between gap-1.5 mb-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div
+                                      className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
+                                        isSelected
+                                          ? "bg-emerald-700 text-white shadow-2xs"
+                                          : "bg-emerald-50 text-emerald-800 group-hover:bg-emerald-100"
+                                      }`}
+                                    >
+                                      <Sprout className="w-4 h-4" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h5 className="text-xs font-extrabold text-slate-900 truncate">
+                                        {plot.plot_name}
+                                      </h5>
+                                      <span className="text-[11px] text-emerald-800 font-bold truncate block">
+                                        {plot.product_name || "Nông sản"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span
+                                    className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded-full border shrink-0 ${
+                                      plot.status === "Dang_canh_tac"
+                                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                        : "bg-slate-100 text-slate-700 border-slate-200"
                                     }`}
                                   >
-                                    <Sprout className="w-4.5 h-4.5" />
+                                    {plot.status === "Dang_canh_tac" ? "Đang trồng" : "Đã thu hoạch"}
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-1.5 text-[10.5px] text-slate-600 my-2 pt-2 border-t border-slate-100">
+                                  <div className="flex items-center gap-1 truncate">
+                                    <span className="text-slate-400">Diện tích:</span>
+                                    <strong className="text-slate-800 font-bold">{plot.area_m2} m²</strong>
                                   </div>
-                                  <div className="min-w-0">
-                                    <h5 className="text-xs font-bold text-slate-900 truncate">
-                                      {plot.plot_name}
-                                    </h5>
-                                    <span className="text-[11px] text-emerald-700 font-semibold truncate block">
-                                      {plot.product_name || "Nông sản"}
-                                    </span>
+                                  <div className="flex items-center gap-1 truncate">
+                                    <span className="text-slate-400">Gieo:</span>
+                                    <strong className="text-slate-800 font-bold">{plot.planting_date}</strong>
                                   </div>
                                 </div>
+
+                                {plot.latest_activity && (
+                                  <div className="text-[10px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-100 line-clamp-2">
+                                    <span className="font-semibold text-emerald-800">Mốc gần nhất:</span>{" "}
+                                    <strong>{plot.latest_activity.date}</strong> — {plot.latest_activity.note}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Actions on Plot */}
+                              <div className="flex flex-wrap items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
                                 <span
-                                  className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-                                    plot.status === "Dang_canh_tac"
-                                      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                      : "bg-slate-100 text-slate-700 border-slate-200"
+                                  className={`text-[10.5px] font-bold px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 shrink-0 ${
+                                    isSelected
+                                      ? "bg-emerald-700 text-white shadow-2xs"
+                                      : "text-slate-600 group-hover:text-emerald-800"
                                   }`}
                                 >
-                                  {plot.status === "Dang_canh_tac" ? "Đang trồng" : "Đã thu hoạch"}
+                                  {isSelected ? (
+                                    <>
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      Đang xem
+                                    </>
+                                  ) : (
+                                    <>
+                                      Xem nhật ký
+                                      <ChevronRight className="w-3 h-3" />
+                                    </>
+                                  )}
                                 </span>
-                              </div>
 
-                              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 my-2.5 pt-2.5 border-t border-slate-100/90">
-                                <div className="flex items-center gap-1 truncate">
-                                  <span className="text-slate-400">Diện tích:</span>
-                                  <strong className="text-slate-800 font-bold">{plot.area_m2} m²</strong>
+                                <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedPlot(plot);
+                                      fetchLogs(plot.id);
+                                      setIsAddLogOpen(true);
+                                    }}
+                                    className="text-[10.5px] font-bold text-emerald-700 hover:text-emerald-900 px-1.5 py-0.5 hover:bg-emerald-50 rounded transition-colors cursor-pointer"
+                                    title="Thêm nhật ký canh tác cho lô này"
+                                  >
+                                    Ghi nhật ký
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditPlot(season, plot)}
+                                    className="text-slate-400 hover:text-emerald-700 p-1 rounded hover:bg-emerald-50 transition-colors cursor-pointer"
+                                    title="Điều chỉnh diện tích & thông tin lô"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeletePlot(season.id, plot)}
+                                    className="text-slate-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors cursor-pointer"
+                                    title="Xóa lô này"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
                                 </div>
-                                <div className="flex items-center gap-1 truncate">
-                                  <span className="text-slate-400">Gieo:</span>
-                                  <strong className="text-slate-800 font-bold">{plot.planting_date}</strong>
-                                </div>
-                              </div>
-
-                              {plot.latest_activity && (
-                                <div className="text-[10px] text-slate-600 bg-slate-50/90 p-2 rounded-xl border border-slate-100 line-clamp-2">
-                                  <span className="font-semibold text-emerald-800">Mốc gần nhất:</span>{" "}
-                                  <strong>{plot.latest_activity.date}</strong> — {plot.latest_activity.note}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Actions on Plot */}
-                            <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-100/90">
-                              <span
-                                className={`text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shrink-0 ${
-                                  isSelected
-                                    ? "bg-emerald-600 text-white shadow-xs"
-                                    : "text-slate-600 group-hover:text-emerald-700"
-                                }`}
-                              >
-                                {isSelected ? (
-                                  <>
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Đang xem nhật ký
-                                  </>
-                                ) : (
-                                  <>
-                                    Xem nhật ký lô này
-                                    <ChevronRight className="w-3.5 h-3.5" />
-                                  </>
-                                )}
-                              </span>
-
-                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedPlot(plot);
-                                    fetchLogs(plot.id);
-                                    setIsAddLogOpen(true);
-                                  }}
-                                  className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 px-2 py-1 hover:bg-emerald-100/60 rounded-lg transition-colors"
-                                  title="Thêm nhật ký canh tác cho lô này"
-                                >
-                                  + Ghi nhật ký
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenEditPlot(season, plot)}
-                                  className="text-slate-400 hover:text-emerald-700 p-1.5 rounded-lg hover:bg-emerald-50 transition-colors"
-                                  title="Điều chỉnh diện tích & thông tin lô"
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeletePlot(season.id, plot)}
-                                  className="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                                  title="Xóa lô này"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Right Column: Farming Log Timeline (5 cols) */}
-        <div className={`lg:col-span-5 space-y-4 ${mobileTab === "plots" ? "hidden lg:block" : "block"}`}>
+        {/* Right Column: Farming Log Timeline (5 cols) - Sticky giữ cố định trong tầm mắt */}
+        <div className={`lg:col-span-5 lg:sticky lg:top-5 space-y-4 ${mobileTab === "plots" ? "hidden lg:block" : "block"}`}>
           {/* Mobile Back Button to return to Plots list */}
           <div className="lg:hidden flex items-center justify-between pb-1">
             <button

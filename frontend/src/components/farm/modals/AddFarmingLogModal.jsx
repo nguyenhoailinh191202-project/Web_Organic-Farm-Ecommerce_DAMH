@@ -248,7 +248,7 @@ export default function AddFarmingLogModal({
     { id: "Gieo_hat", label: "Gieo hạt", icon: Sprout, color: "text-emerald-600" },
     { id: "Bon_phan", label: "Bón phân", icon: FlaskConical, color: "text-amber-600" },
     { id: "Tuoi_tieu", label: "Tưới nước", icon: Droplets, color: "text-blue-600" },
-    { id: "Thu_hoach", label: "Thu hoạch", icon: Scissors, color: "text-purple-600" },
+    { id: "Thu_hoach", label: "Thu hoạch", icon: Scissors, color: "text-[#064e2e]" },
     { id: "Khac", label: "Khác", icon: ClipboardList, color: "text-slate-600" },
   ];
 

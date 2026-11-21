@@ -5,7 +5,6 @@ import {
   QrCode,
   X,
   Loader2,
-  AlertCircle,
   Download,
   ExternalLink,
   Layers,
@@ -257,18 +256,15 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal */}
-        <div className="px-5 sm:px-6 py-4 bg-gradient-to-r from-purple-50/80 to-white border-b border-slate-100 flex items-center justify-between shrink-0">
+        <div className="px-5 sm:px-6 py-4 bg-gradient-to-r from-emerald-50/80 to-white border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-600/20 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#064e2e] text-white flex items-center justify-center shadow-xs shrink-0">
               <QrCode className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <h3 className="text-base sm:text-lg font-bold text-slate-800 truncate">
                 In Tem Mã QR Lô Hàng
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5 truncate">
-                Tem in nhiệt định danh dán bao bì truy xuất nguồn gốc minh chứng
-              </p>
             </div>
           </div>
           <button
@@ -286,8 +282,8 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
           {/* Cấu hình khổ in */}
           <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 text-xs">
             <div className="flex items-center gap-1.5 font-bold text-slate-700">
-              <Layers className="w-4 h-4 text-purple-600" />
-              <span>Khổ Tem In:</span>
+              <Layers className="w-4 h-4 text-[#064e2e]" />
+              <span>Khổ in:</span>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {[
@@ -301,7 +297,7 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
                   onClick={() => setPrintSize(sz.id)}
                   className={`px-2.5 py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
                     printSize === sz.id
-                      ? "bg-purple-600 text-white shadow-xs"
+                      ? "bg-[#064e2e] text-white shadow-xs"
                       : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
                 >
@@ -313,7 +309,7 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
 
           {loading ? (
             <div className="py-16 text-center flex flex-col items-center justify-center">
-              <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
+              <Loader2 className="w-8 h-8 text-[#064e2e] animate-spin mb-3" />
               <p className="text-xs text-slate-500 font-medium">
                 Đang sinh mã QR định danh và xuất mẫu tem...
               </p>
@@ -325,10 +321,7 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between text-xs px-1">
                     <span className="font-bold text-slate-700">
-                      Bản xem trước trang A4 ({A4_LABEL_COUNT} tem · lưới 4 cột × 6 hàng)
-                    </span>
-                    <span className="text-[11px] text-purple-700 font-semibold">
-                      Tự căn vừa 1 trang A4 khi in
+                      Bản xem trước A4 ({A4_LABEL_COUNT} tem)
                     </span>
                   </div>
                   <div
@@ -406,10 +399,10 @@ export default function QrPrintPreviewModal({ isOpen, onClose, batch = null }) {
               type="button"
               onClick={handlePrint}
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-600/20 flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-[#064e2e] hover:bg-[#043821] text-white text-xs sm:text-sm font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
             >
               <Printer className="w-4 h-4" />
-              <span>{isA4Mode ? "In 24 Tem (A4)" : "In Tem Ngay"}</span>
+              <span>{isA4Mode ? "In 24 Tem (A4)" : "In Tem"}</span>
             </button>
           </div>
         </div>

@@ -168,10 +168,4 @@ export const farmApi = {
     return axiosClient.put(`/farm/certificates/${id}`, formData);
   },
   deleteCertificate: (id) => axiosClient.delete(`/farm/certificates/${id}`),
-
-  // Kiểm kho & Ghi nhận hao hụt / xuất hủy
-  recordBatchWastage: (batchId, data) =>
-    axiosClient.post(`/farm/batches/${batchId}/wastage`, data),
-  getDisposals: () =>
-    axiosClient.get("/farm/disposals"),
 };

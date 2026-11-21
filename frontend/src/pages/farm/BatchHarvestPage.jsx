@@ -221,6 +221,12 @@ export default function BatchHarvestPage() {
     setSelectedBatch(batch);
     setDetailBatch(null);
     setLoadingDetail(true);
+
+    // Tự động cuộn đến bảng chi tiết trên màn hình nhỏ/vừa
+    setTimeout(() => {
+      document.getElementById("batch-detail-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
+
     try {
       const res = await farmApi.getBatchDetail(batch.id);
       const payload = res.data?.data ?? res.data ?? null;
@@ -355,23 +361,20 @@ export default function BatchHarvestPage() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Page Header */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-xs border border-slate-200/80 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="space-y-4 sm:space-y-5 pb-10">
+      {/* Page Header - Tinh gọn & Đồng bộ */}
+      <div className="bg-gradient-to-br from-white via-[#fcfdfa] to-emerald-50/30 rounded-2xl p-4 sm:p-5 shadow-xs border border-emerald-900/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">
-            <PackageCheck className="w-4 h-4" />
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 mb-1.5">
+            <PackageCheck className="w-3 h-3 text-emerald-700" />
             <span>Phân Hệ Nông Trại</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Quản Lý Lô Hàng Thu Hoạch
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Theo dõi các lô nông sản sau thu hoạch, kiểm soát hạn sử dụng, in tem QR truy xuất và kiểm kê kho.
-          </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -379,10 +382,10 @@ export default function BatchHarvestPage() {
               else fetchDisposals();
             }}
             disabled={refreshing || loadingDisposals}
-            className="p-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            className="p-2 rounded-xl border border-slate-200/80 bg-white shadow-2xs text-slate-600 hover:text-emerald-700 hover:bg-slate-50 transition-all cursor-pointer"
             title="Làm mới dữ liệu"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing || loadingDisposals ? "animate-spin text-emerald-600" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing || loadingDisposals ? "animate-spin text-emerald-600" : ""}`} />
           </button>
 
           <button
@@ -392,96 +395,117 @@ export default function BatchHarvestPage() {
               setCreateInitialDate(null);
               setIsCreateOpen(true);
             }}
-            className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-2xs hover:shadow active:scale-[0.98] flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Tạo Lô Hàng Thu Hoạch</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Tạo Lô Hàng</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* KPI Stats Cards - Gọn gàng đồng bộ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Tổng lô */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Tổng Lô Thu Hoạch</span>
-            <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Tổng Lô Thu Hoạch</span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-800">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight tabular-nums">
             {stats.total_batches}
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Lô thành phẩm đã nhập kho</p>
         </div>
 
         {/* Khả dụng */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Tồn Kho Khả Dụng</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <PackageCheck className="w-4 h-4" />
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-emerald-800">Tồn Kho Khả Dụng</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
+              <PackageCheck className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-600">
+          <div className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight tabular-nums">
             {Number(stats.total_available_qty || 0).toLocaleString("vi-VN")}{" "}
-            <span className="text-xs font-normal text-slate-500">kg</span>
+            <span className="text-xs font-semibold text-slate-500">kg</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">{stats.active_batches} lô đang mở bán</p>
         </div>
 
         {/* Cận hạn */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Lô Cận Hạn</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-amber-800">Lô Cận Hạn</span>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200/60">
+              <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-amber-600">
+          <div className="text-xl sm:text-2xl font-black text-amber-600 tracking-tight tabular-nums">
             {stats.expiring_soon_batches}
           </div>
-          <p className="text-[11px] text-amber-700/80 mt-1">HSD ≤ 48 giờ (Ưu tiên xuất trước)</p>
         </div>
 
         {/* Hết hàng */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Đã Xuất Kho</span>
-            <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
-              <TrendingDown className="w-4 h-4" />
+        <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all">
+          <div className="flex items-center justify-between text-slate-500 mb-1.5">
+            <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Đã Xuất Kho</span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+              <TrendingDown className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-700">
+          <div className="text-xl sm:text-2xl font-black text-slate-700 tracking-tight tabular-nums">
             {stats.depleted_batches}
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">Đã bán hết hoặc xuất kho</p>
         </div>
       </div>
 
-      {/* Main Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-1">
+      {/* Main Tabs Navigation - Segmented Switcher */}
+      <div className="p-1 bg-slate-100/90 rounded-xl border border-slate-200/70 inline-flex flex-wrap items-center gap-1">
         <button
           type="button"
           onClick={() => setActiveMainTab("batches")}
-          className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeMainTab === "batches"
-              ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              ? "bg-white text-emerald-950 shadow-xs ring-1 ring-black/5 font-extrabold"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
           }`}
         >
-          <PackageCheck className="w-4 h-4" />
-          <span>Danh Sách Lô Hàng Thu Hoạch</span>
+          <PackageCheck className="w-3.5 h-3.5 text-emerald-700" />
+          <span>Danh Sách Lô Hàng</span>
           <span
-            className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-              activeMainTab === "batches" ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"
+            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold tabular-nums ${
+              activeMainTab === "batches"
+                ? "bg-emerald-100 text-emerald-800"
+                : "bg-slate-200 text-slate-700"
             }`}
           >
             {batches.length}
           </span>
         </button>
 
+        <button
+          type="button"
+          onClick={() => setActiveMainTab("disposals")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            activeMainTab === "disposals"
+              ? "bg-white text-emerald-950 shadow-xs ring-1 ring-black/5 font-extrabold"
+              : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+          }`}
+        >
+          <ClipboardList className="w-3.5 h-3.5 text-emerald-700" />
+          <span>Kiểm Kho & Hao Hụt</span>
+          {disposals.length > 0 && (
+            <span
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold tabular-nums ${
+                activeMainTab === "disposals"
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-slate-200 text-slate-700"
+              }`}
+            >
+              {disposals.length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* TAB 1: Danh sách Lô hàng Thu hoạch (Chọn lô -> Hiện thông tin & bảng điều khiển) */}
@@ -489,40 +513,43 @@ export default function BatchHarvestPage() {
         <div
           className={
             selectedBatch
-              ? "grid grid-cols-1 xl:grid-cols-12 gap-5 items-start"
+              ? "grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start"
               : "block"
           }
         >
           {/* Danh sách Lô hàng */}
           <div
-            className={`bg-white rounded-3xl shadow-xs border border-slate-200/80 overflow-hidden ${
-              selectedBatch ? "xl:col-span-7" : "w-full"
+            className={`bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden ${
+              selectedBatch ? "lg:col-span-7" : "w-full"
             }`}
           >
             {/* Toolbar: Search & Status Filters */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50/50">
+            <div className="p-3 sm:p-3.5 border-b border-slate-200/70 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 bg-gradient-to-b from-slate-50/80 to-white">
               {/* Status Tabs */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                 {[
                   { id: "ALL", label: "Tất cả", count: batches.length },
-                  { id: "Con_hang", label: "Còn hàng", count: stats.active_batches },
-                  { id: "Sap_het_han", label: "Cận hạn", count: stats.expiring_soon_batches },
-                  { id: "Het_hang", label: "Hết hàng", count: stats.depleted_batches },
+                  { id: "Con_hang", label: "Còn hàng", count: stats.active_batches, dot: "bg-emerald-500 animate-pulse" },
+                  { id: "Sap_het_han", label: "Cận hạn", count: stats.expiring_soon_batches, dot: "bg-amber-500" },
+                  { id: "Het_hang", label: "Hết hàng", count: stats.depleted_batches, dot: "bg-slate-400" },
                 ].map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setStatusFilter(tab.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                       statusFilter === tab.id
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                        ? "bg-[#064e2e] text-white shadow-xs ring-1 ring-emerald-800"
+                        : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80 shadow-2xs"
                     }`}
                   >
+                    {tab.dot && <span className={`w-1.5 h-1.5 rounded-full ${tab.dot}`} />}
                     <span>{tab.label}</span>
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                        statusFilter === tab.id ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums font-extrabold ${
+                        statusFilter === tab.id
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-100 text-slate-600"
                       }`}
                     >
                       {tab.count}
@@ -533,70 +560,60 @@ export default function BatchHarvestPage() {
 
               {/* Search Input */}
               <div className="relative w-full md:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Tìm mã lô, nông sản, lô đất..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-slate-400"
+                  className="w-full pl-8 pr-7 py-1.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 transition-all placeholder:text-slate-400 shadow-2xs"
                 />
                 {searchTerm && (
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
-                    className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5 rounded-full hover:bg-slate-100"
                     aria-label="Xóa từ khóa"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Gợi ý chọn dòng */}
-            {!loading && filteredBatches.length > 0 && !selectedBatch && (
-              <div className="px-5 py-2 bg-emerald-50/50 border-b border-emerald-100/80 text-[11.5px] text-emerald-800 flex items-center justify-between gap-2">
-                <span>Bấm chọn vào bất kỳ lô hàng nào bên dưới để xem thông tin chi tiết và bảng thao tác điều khiển.</span>
-                <span className="text-emerald-600 font-semibold tabular-nums shrink-0">
-                  {filteredBatches.length} lô
-                </span>
-              </div>
-            )}
-
-            {/* Table Content */}
+            {/* Table Content - Bo lại và có thanh cuộn mượt mà */}
             {loading ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center">
-                <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mb-3" />
-                <p className="text-xs text-slate-500 font-medium">Đang tải danh sách lô thu hoạch...</p>
+              <div className="p-10 text-center flex flex-col items-center justify-center">
+                <Loader2 className="w-7 h-7 text-emerald-600 animate-spin mb-2.5" />
+                <p className="text-xs text-slate-500 font-semibold">Đang tải danh sách lô thu hoạch...</p>
               </div>
             ) : filteredBatches.length === 0 ? (
-              <div className="p-12 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
-                  <PackageCheck className="w-7 h-7" />
+              <div className="p-10 text-center">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2.5 shadow-inner">
+                  <PackageCheck className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm sm:text-base font-bold text-slate-700">
+                <h4 className="text-sm font-extrabold text-slate-800">
                   Không tìm thấy lô hàng thu hoạch nào
                 </h4>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
                   {searchTerm || statusFilter !== "ALL"
                     ? "Không có lô nào khớp với điều kiện lọc. Hãy thử tìm từ khóa khác."
                     : "Chưa có lô hàng nào được thu hoạch. Hãy bấm nút 'Tạo Lô Hàng Thu Hoạch' để nhập kho đợt nông sản đầu tiên."}
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-h-[calc(100vh-270px)] min-h-[460px] overflow-y-auto scrollbar-thin">
                 <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50/70">
-                      <th className="py-3.5 px-4 sm:px-5">Lô Hàng & Nông Sản</th>
-                      {!selectedBatch && <th className="py-3.5 px-4">Lô Canh Tác</th>}
-                      <th className="py-3.5 px-4">Thu Hoạch & HSD</th>
-                      <th className="py-3.5 px-4">Tồn Kho</th>
-                      <th className="py-3.5 px-4 sm:px-5 text-right">Trạng Thái</th>
+                  <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 shadow-2xs">
+                    <tr className="border-b border-slate-200/80 text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+                      <th className="py-2.5 px-3.5 sm:px-4">Lô Hàng & Nông Sản</th>
+                      {!selectedBatch && <th className="py-2.5 px-3.5">Lô Canh Tác</th>}
+                      <th className="py-2.5 px-3.5">Thu Hoạch & HSD</th>
+                      <th className="py-2.5 px-3.5">Tồn Kho</th>
+                      <th className="py-2.5 px-3.5 sm:px-4 text-right">Trạng Thái</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                  <tbody className="divide-y divide-slate-100 text-xs">
                     {filteredBatches.map((batch) => {
                       const percentLeft = Math.min(
                         100,
@@ -617,26 +634,26 @@ export default function BatchHarvestPage() {
                               handleSelectBatch(batch);
                             }
                           }}
-                          className={`transition-colors cursor-pointer group focus:outline-none focus-visible:bg-emerald-50/90 ${
+                          className={`transition-all duration-150 cursor-pointer group focus:outline-none ${
                             isSelected
-                              ? "bg-emerald-50/90 ring-1 ring-inset ring-emerald-200"
-                              : "hover:bg-slate-50/90"
+                              ? "bg-gradient-to-r from-emerald-50/95 via-emerald-50/60 to-white border-l-4 border-l-emerald-600 ring-1 ring-inset ring-emerald-200/80"
+                              : "hover:bg-slate-50/80 hover:border-slate-200"
                           }`}
                         >
                           {/* Lô Hàng & Nông Sản */}
-                          <td className="py-3.5 px-4 sm:px-5">
+                          <td className="py-2.5 px-3.5 sm:px-4">
                             <div className="min-w-0">
-                              <div className="font-bold text-slate-800 truncate">
+                              <div className="font-extrabold text-slate-900 group-hover:text-emerald-950 transition-colors truncate">
                                 {batch.product_name}
                               </div>
-                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                                <span className="font-mono font-semibold text-[11px] text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/70">
+                              <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                <span className="font-mono font-bold text-[10.5px] text-emerald-900 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 shadow-2xs">
                                   {batch.batch_code}
                                 </span>
                                 {batch.certificates_count > 0 && (
-                                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded-md border border-emerald-200">
-                                    <Award className="w-3 h-3 shrink-0" />
-                                    <span className="tabular-nums">{batch.certificates_count}</span>
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-white px-1.5 py-0.2 rounded border border-emerald-200 shadow-2xs">
+                                    <Award className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                                    <span className="tabular-nums">{batch.certificates_count} CN</span>
                                   </span>
                                 )}
                               </div>
@@ -645,41 +662,41 @@ export default function BatchHarvestPage() {
 
                           {/* Lô Canh Tác (hiện khi bảng toàn chiều rộng) */}
                           {!selectedBatch && (
-                            <td className="py-3.5 px-4">
-                              <div className="font-semibold text-slate-700 truncate max-w-[160px]">
+                            <td className="py-2.5 px-3.5">
+                              <div className="font-bold text-slate-800 truncate max-w-[170px]">
                                 {batch.plot_name}
                               </div>
-                              <div className="text-[11px] text-slate-400 truncate max-w-[160px]">
+                              <div className="text-[10.5px] text-slate-500 font-medium truncate max-w-[170px]">
                                 {batch.season_name}
                               </div>
                             </td>
                           )}
 
                           {/* Thu Hoạch & HSD */}
-                          <td className="py-3.5 px-4 whitespace-nowrap tabular-nums">
-                            <div className="text-xs text-slate-600 flex items-center gap-1.5">
-                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <td className="py-2.5 px-3.5 whitespace-nowrap tabular-nums">
+                            <div className="text-xs font-medium text-slate-700 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
                               <span>{batch.harvest_date}</span>
                             </div>
-                            <div className="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5 mt-0.5">
-                              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <div className="text-[10.5px] font-bold text-slate-900 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3 text-slate-400 shrink-0" />
                               <span>HSD: {batch.expiry_date}</span>
                             </div>
                           </td>
 
                           {/* Tồn Kho */}
-                          <td className="py-3.5 px-4 tabular-nums">
+                          <td className="py-2.5 px-3.5 tabular-nums">
                             <div className="flex items-center justify-between gap-2 text-xs mb-1">
-                              <span className="font-bold text-slate-800">
+                              <span className="font-extrabold text-slate-900">
                                 {batch.remaining_quantity} / {batch.harvest_quantity} {batch.product_unit}
                               </span>
-                              <span className="text-[10px] text-slate-400">{percentLeft}%</span>
+                              <span className="text-[10px] font-bold text-slate-500">{percentLeft}%</span>
                             </div>
-                            <div className="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden ring-1 ring-slate-200/70">
                               <div
-                                className={`h-full rounded-full transition-all ${
+                                className={`h-full rounded-full transition-all duration-300 ${
                                   percentLeft > 40
-                                    ? "bg-emerald-500"
+                                    ? "bg-emerald-600"
                                     : percentLeft > 15
                                     ? "bg-amber-500"
                                     : "bg-red-500"
@@ -689,29 +706,49 @@ export default function BatchHarvestPage() {
                             </div>
                           </td>
 
-                          {/* Trạng Thái & Mũi tên chọn */}
-                          <td className="py-3.5 px-4 sm:px-5 text-right whitespace-nowrap">
-                            <div className="inline-flex items-center gap-2">
+                          {/* Trạng Thái & Nút Chi Tiết */}
+                          <td className="py-2.5 px-3.5 sm:px-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5 sm:gap-2">
                               <span
-                                className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                                className={`text-[10.5px] font-extrabold px-2 py-0.5 rounded-full border shadow-2xs inline-flex items-center gap-1 ${
                                   batch.status === "Con_hang"
-                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200/90"
                                     : batch.status === "Sap_het_han"
-                                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                                    ? "bg-amber-50 text-amber-800 border-amber-200/90"
                                     : batch.status === "Het_hang"
                                     ? "bg-slate-100 text-slate-600 border-slate-200"
                                     : "bg-red-50 text-red-800 border-red-200"
                                 }`}
                               >
-                                {batch.status_label}
+                                {batch.status === "Con_hang" && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                )}
+                                {batch.status === "Sap_het_han" && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                )}
+                                <span>{batch.status_label}</span>
                               </span>
-                              <ChevronRight
-                                className={`w-4 h-4 transition-transform ${
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSelectBatch(batch);
+                                }}
+                                className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95 ${
                                   isSelected
-                                    ? "text-emerald-700 translate-x-0.5"
-                                    : "text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5"
+                                    ? "bg-[#064e2e] text-white ring-1 ring-emerald-800"
+                                    : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80"
                                 }`}
-                              />
+                                title="Xem chi tiết lô hàng"
+                              >
+                                <span>{isSelected ? "Đang xem" : "Chi tiết"}</span>
+                                <ChevronRight
+                                  className={`w-3 h-3 transition-transform ${
+                                    isSelected ? "rotate-90 text-white" : "text-emerald-700"
+                                  }`}
+                                />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -734,49 +771,49 @@ export default function BatchHarvestPage() {
               detailBatch?.certificates?.length ?? activeBatch.certificates_count ?? 0;
 
             return (
-              <div className="xl:col-span-5 xl:sticky xl:top-5 bg-white rounded-3xl shadow-sm border border-slate-200/90 overflow-hidden animate-in fade-in slide-in-from-right-3 duration-200">
+              <div id="batch-detail-panel" className="lg:col-span-5 lg:sticky lg:top-5 bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden animate-in fade-in slide-in-from-right-3 duration-200">
                 {/* Panel Header */}
-                <div className="px-5 py-4 bg-[#064e2e] text-white flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg bg-white/15 text-emerald-100">
+                <div className="p-3.5 sm:p-4 bg-gradient-to-br from-[#064e2e] via-[#043821] to-[#022415] text-white flex items-start justify-between gap-3 relative overflow-hidden">
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="min-w-0 relative z-10">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-mono text-[11px] font-extrabold px-2 py-0.5 rounded-md backdrop-blur-md bg-white/15 text-emerald-100 border border-white/20 shadow-2xs">
                         {activeBatch.batch_code}
                       </span>
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-100 border border-emerald-300/30">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full backdrop-blur-md bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">
                         {activeBatch.status_label}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-base sm:text-lg text-white mt-1.5 leading-snug break-words">
+                    <h3 className="font-black text-base sm:text-lg text-white mt-1.5 leading-snug break-words tracking-tight">
                       {activeBatch.product_name}
                     </h3>
-                    <p className="text-xs text-emerald-200/90 mt-0.5 truncate">
-                      {activeBatch.plot_name} · {activeBatch.season_name}
+                    <p className="text-[11px] text-emerald-200/90 mt-0.5 truncate flex items-center gap-1.5 font-medium">
+                      <span>{activeBatch.plot_name}</span>
+                      <span className="text-emerald-400/60">•</span>
+                      <span>{activeBatch.season_name}</span>
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleSelectBatch(null)}
-                    className="p-1.5 rounded-full text-emerald-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-emerald-200 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 transition-all cursor-pointer shrink-0 relative z-10 active:scale-95"
                     title="Đóng bảng chi tiết"
                     aria-label="Đóng bảng chi tiết lô hàng"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Bảng Thao Tác Điều Khiển */}
-                <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/70">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
-                    Bảng Thao Tác Điều Khiển
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3 gap-2">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200/70 bg-gradient-to-b from-slate-50/90 to-white">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setActiveQrBatch(activeBatch)}
-                      className="px-3.5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                      className="min-h-[36px] sm:min-h-[38px] px-2.5 py-1.5 rounded-xl bg-[#064e2e] hover:bg-[#043821] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow transition-all cursor-pointer active:scale-[0.98]"
                     >
-                      <Printer className="w-4 h-4 shrink-0" />
-                      <span>Xem & In Tem QR</span>
+                      <Printer className="w-3.5 h-3.5 shrink-0 text-emerald-300" />
+                      <span>In Tem QR</span>
                     </button>
 
                     <Link
@@ -785,9 +822,9 @@ export default function BatchHarvestPage() {
                           ? `/farm/certificates?batch_id=${activeBatch.id}`
                           : `/farm/certificates?batch_id=${activeBatch.id}&upload=1`
                       }
-                      className="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all"
+                      className="min-h-[36px] sm:min-h-[38px] px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
                     >
-                      <Award className="w-4 h-4 shrink-0" />
+                      <Award className="w-3.5 h-3.5 shrink-0 text-emerald-100" />
                       <span>{certCount > 0 ? `Chứng Nhận (${certCount})` : "Gắn Chứng Nhận"}</span>
                     </Link>
 
@@ -795,9 +832,9 @@ export default function BatchHarvestPage() {
                       type="button"
                       onClick={() => handleOpenWastage(activeBatch)}
                       disabled={activeBatch.remaining_quantity <= 0}
-                      className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                      className="min-h-[36px] sm:min-h-[38px] px-2.5 py-1.5 rounded-xl bg-white hover:bg-amber-50/80 text-amber-900 border border-amber-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-[0.98]"
                     >
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       <span>
                         {activeBatch.remaining_quantity > 0 ? "Ghi Hao Hụt" : "Đã Xuất Hết"}
                       </span>
@@ -805,26 +842,26 @@ export default function BatchHarvestPage() {
                   </div>
                 </div>
 
-                {/* Thông Tin Chi Tiết Lô Hàng */}
-                <div className="p-4 sm:p-5 space-y-4">
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                      <span className="text-[10.5px] font-bold uppercase text-slate-400 block">
+                {/* Thông Tin Chi Tiết Lô Hàng - Bo lại và có thanh cuộn mượt */}
+                <div className="p-3 sm:p-3.5 space-y-3 max-h-[calc(100vh-230px)] overflow-y-auto scrollbar-thin">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                         Ngày Thu Hoạch
                       </span>
-                      <strong className="text-slate-800 tabular-nums mt-0.5 block">
+                      <strong className="text-slate-900 font-extrabold tabular-nums mt-0.5 text-xs block">
                         {activeBatch.harvest_date}
                       </strong>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                      <span className="text-[10.5px] font-bold uppercase text-slate-400 block">
+                    <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                         Hạn Sử Dụng
                       </span>
-                      <strong className="text-emerald-700 tabular-nums mt-0.5 block">
+                      <strong className="text-emerald-800 font-extrabold tabular-nums mt-0.5 text-xs block">
                         {activeBatch.expiry_date}
                       </strong>
                       <span
-                        className={`text-[10.5px] font-semibold mt-0.5 block ${
+                        className={`text-[10px] font-bold mt-0.5 inline-flex items-center gap-1 ${
                           activeBatch.days_until_expiry < 0
                             ? "text-red-600"
                             : activeBatch.days_until_expiry <= 2
@@ -833,26 +870,26 @@ export default function BatchHarvestPage() {
                         }`}
                       >
                         {activeBatch.days_until_expiry < 0
-                          ? "Đã quá hạn"
-                          : `Còn ${activeBatch.days_until_expiry} ngày`}
+                          ? "• Đã quá hạn"
+                          : `• Còn ${activeBatch.days_until_expiry} ngày`}
                       </span>
                     </div>
                   </div>
 
                   {/* Tồn kho & Người phụ trách */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2.5 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 space-y-2 text-xs">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-slate-500 font-semibold">Tồn kho khả dụng</span>
-                      <strong className="text-slate-800 tabular-nums">
+                      <span className="text-slate-500 font-semibold text-xs">Tồn kho khả dụng</span>
+                      <strong className="text-slate-900 font-extrabold tabular-nums text-xs">
                         {activeBatch.remaining_quantity} / {activeBatch.harvest_quantity}{" "}
                         {activeBatch.product_unit} ({percentLeft}%)
                       </strong>
                     </div>
-                    <div className="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-slate-200/70 rounded-full h-1.5 overflow-hidden ring-1 ring-slate-200">
                       <div
-                        className={`h-full rounded-full transition-all ${
+                        className={`h-full rounded-full transition-all duration-300 ${
                           percentLeft > 40
-                            ? "bg-emerald-500"
+                            ? "bg-emerald-600"
                             : percentLeft > 15
                               ? "bg-amber-500"
                               : "bg-red-500"
@@ -860,14 +897,14 @@ export default function BatchHarvestPage() {
                         style={{ width: `${percentLeft}%` }}
                       />
                     </div>
-                    <div className="flex items-center justify-between gap-2 pt-1 text-[11px] text-slate-500">
-                      <span className="inline-flex items-center gap-1 min-w-0 truncate">
-                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <div className="flex items-center justify-between gap-2 pt-0.5 text-[10.5px] text-slate-500">
+                      <span className="inline-flex items-center gap-1 min-w-0 truncate font-medium">
+                        <User className="w-3 h-3 text-slate-400 shrink-0" />
                         <span className="truncate">{activeBatch.staff_name}</span>
                       </span>
                       <span className="tabular-nums shrink-0">
                         Hao hụt:{" "}
-                        <strong className="text-slate-700">
+                        <strong className="text-slate-800 font-bold">
                           {activeBatch.wastage_total || 0} {activeBatch.product_unit}
                         </strong>
                       </span>
@@ -876,7 +913,7 @@ export default function BatchHarvestPage() {
 
                   {/* Sub-tabs: Chứng nhận | Nhật ký canh tác | Hao hụt kho */}
                   <div>
-                    <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 rounded-2xl border border-slate-200/70 mb-3">
+                    <div className="grid grid-cols-3 gap-1 p-0.5 bg-slate-100/90 rounded-xl border border-slate-200/80 mb-2.5">
                       {[
                         {
                           id: "certificates",
@@ -895,10 +932,10 @@ export default function BatchHarvestPage() {
                           key={tab.id}
                           type="button"
                           onClick={() => setDetailSubTab(tab.id)}
-                          className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer truncate ${
+                          className={`py-1.5 px-1.5 rounded-lg text-[10.5px] font-bold transition-all cursor-pointer truncate ${
                             detailSubTab === tab.id
-                              ? "bg-white text-emerald-800 shadow-xs"
-                              : "text-slate-600 hover:text-slate-800"
+                              ? "bg-white text-emerald-900 shadow-2xs border border-slate-200/80 font-extrabold"
+                              : "text-slate-600 hover:text-slate-900"
                           }`}
                         >
                           {tab.label}
@@ -949,13 +986,13 @@ export default function BatchHarvestPage() {
                           ))
                         ) : (
                           <div className="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-500 space-y-2">
-                            <p>Chưa có chứng nhận hoặc kết quả kiểm định gắn cho lô này.</p>
+                            <p>Chưa có chứng nhận cho lô này.</p>
                             <Link
                               to={`/farm/certificates?batch_id=${activeBatch.id}&upload=1`}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-colors"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              <span>Tải & Gắn Chứng Nhận Ngay</span>
+                              <span>Gắn Chứng Nhận</span>
                             </Link>
                           </div>
                         )}
@@ -1048,7 +1085,7 @@ export default function BatchHarvestPage() {
                   onClick={() => setDisposalTypeFilter(tab.id)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                     disposalTypeFilter === tab.id
-                      ? "bg-purple-600 text-white shadow-xs"
+                      ? "bg-[#064e2e] text-white shadow-xs"
                       : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
                 >
@@ -1065,7 +1102,7 @@ export default function BatchHarvestPage() {
                 placeholder="Tìm mã lô, nông sản, lý do..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-slate-400"
+                className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition-all placeholder:text-slate-400"
               />
               {searchTerm && (
                 <button
@@ -1082,7 +1119,7 @@ export default function BatchHarvestPage() {
           {/* Table Content */}
           {loadingDisposals ? (
             <div className="p-12 text-center flex flex-col items-center justify-center">
-              <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
+              <Loader2 className="w-8 h-8 text-[#064e2e] animate-spin mb-3" />
               <p className="text-xs text-slate-500 font-medium">Đang tải sổ theo dõi hao hụt kho...</p>
             </div>
           ) : filteredDisposals.length === 0 ? (
@@ -1093,28 +1130,25 @@ export default function BatchHarvestPage() {
               <h4 className="text-sm sm:text-base font-bold text-slate-700">
                 Chưa có bản ghi hao hụt nào
               </h4>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                Khi thực hiện kiểm kho hoặc phát hiện nông sản hư hỏng, hãy bấm nút biểu tượng cảnh báo tại tab "Danh Sách Lô" để lập phiếu xuất hủy.
-              </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[calc(100vh-270px)] min-h-[460px] overflow-y-auto scrollbar-thin">
               <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50/70">
-                    <th className="py-3.5 px-4 sm:px-6">Mã Phiếu & Thời Gian</th>
-                    <th className="py-3.5 px-4">Lô Hàng</th>
-                    <th className="py-3.5 px-4">Nông Sản</th>
-                    <th className="py-3.5 px-4">Loại Biến Động</th>
-                    <th className="py-3.5 px-4">Số Lượng Hao Hụt</th>
-                    <th className="py-3.5 px-4">Lý Do</th>
-                    <th className="py-3.5 px-4 sm:px-6">Kỹ Thuật Viên</th>
+                <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 shadow-2xs">
+                  <tr className="border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th className="py-2.5 px-3.5 sm:px-4">Mã Phiếu & Thời Gian</th>
+                    <th className="py-2.5 px-3">Lô Hàng</th>
+                    <th className="py-2.5 px-3">Nông Sản</th>
+                    <th className="py-2.5 px-3">Loại Biến Động</th>
+                    <th className="py-2.5 px-3">Số Lượng Hao Hụt</th>
+                    <th className="py-2.5 px-3">Lý Do</th>
+                    <th className="py-2.5 px-3.5 sm:px-4">Kỹ Thuật Viên</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                <tbody className="divide-y divide-slate-100 text-xs">
                   {filteredDisposals.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3.5 px-4 sm:px-6 whitespace-nowrap">
+                      <td className="py-2.5 px-3.5 sm:px-4 whitespace-nowrap">
                         <span className="font-mono font-bold text-slate-800 block text-xs">
                           #BDK-{item.id}
                         </span>
@@ -1123,8 +1157,8 @@ export default function BatchHarvestPage() {
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="font-mono font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200/60 text-xs">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 text-xs">
                           {item.batch_code}
                         </span>
                         <span className="text-[11px] text-slate-400 block mt-0.5">
@@ -1132,11 +1166,11 @@ export default function BatchHarvestPage() {
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 font-bold text-slate-800">
+                      <td className="py-2.5 px-3 font-bold text-slate-800">
                         {item.product_name}
                       </td>
 
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
                         <span
                           className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
                             item.type === "Hao_hut"
@@ -1150,15 +1184,15 @@ export default function BatchHarvestPage() {
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 font-extrabold text-red-600 whitespace-nowrap">
+                      <td className="py-2.5 px-3 font-extrabold text-red-600 whitespace-nowrap">
                         - {item.quantity} {item.product_unit}
                       </td>
 
-                      <td className="py-3.5 px-4 text-slate-700 max-w-xs leading-relaxed">
+                      <td className="py-2.5 px-3 text-slate-700 max-w-xs leading-relaxed text-xs">
                         {item.reason}
                       </td>
 
-                      <td className="py-3.5 px-4 sm:px-6 text-slate-500 whitespace-nowrap">
+                      <td className="py-2.5 px-3.5 sm:px-4 text-slate-500 whitespace-nowrap text-xs">
                         {item.staff_name}
                       </td>
                     </tr>
